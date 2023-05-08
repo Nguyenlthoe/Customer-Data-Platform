@@ -16,7 +16,7 @@ public class MyResponse {
     @Expose
     private final UUID requestId = UUID.randomUUID();
     @Expose
-    private final String message;
+    private final String msg;
     @Expose
     private final Object data;
 
@@ -26,7 +26,7 @@ public class MyResponse {
 
     private MyResponse(BaseResponseBuilder builder) {
         this.code = builder.code;
-        this.message = builder.message;
+        this.msg= builder.msg;
         this.data = builder.data;
     }
 
@@ -34,7 +34,7 @@ public class MyResponse {
     public String toString() {
         return "BaseResponse{" +
                 "code=" + code +
-                ", message='" + message + '\'' +
+                ", msg='" + msg+ '\'' +
                 ", data=" + data +
                 '}';
     }
@@ -42,7 +42,7 @@ public class MyResponse {
     public static class BaseResponseBuilder {
 
         private int code = -1;
-        private String message = "default message";
+        private String msg = "default message";
         private Object data = null;
 
         public BaseResponseBuilder buildCode(int code) {
@@ -51,7 +51,7 @@ public class MyResponse {
         }
 
         public BaseResponseBuilder buildMessage(String message) {
-            this.message = message;
+            this.msg = message;
             return this;
         }
 
