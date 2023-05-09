@@ -7,12 +7,13 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @Entity
-@NoArgsConstructor
 @Table(name = "bookshop_author")
 public class AuthorEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,4 +32,16 @@ public class AuthorEntity {
 
     @Column(name = "updated_at")
     private Date updatedAt;
+
+    @ManyToMany
+    @JoinTable(
+            name = "bookshop_author_book_association",
+            joinColumns = @JoinColumn(name = "author_id"),
+            inverseJoinColumns = @JoinColumn(name = "book_id"))
+    private List<BookEntity> listBook;
+
+    public AuthorEntity(){
+        this.createdAt = new Date();
+        this.updatedAt = createdAt;
+    }
 }

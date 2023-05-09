@@ -6,10 +6,10 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Set;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @Entity
 @Table(name = "bookshop_category")
 public class CategoryEntity {
@@ -26,4 +26,16 @@ public class CategoryEntity {
 
     @Column(name = "updated_at")
     private Date updatedAt;
+
+    @ManyToMany
+    @JoinTable(
+            name = "bookshop_category_book_association",
+            joinColumns = @JoinColumn(name = "category_id"),
+            inverseJoinColumns = @JoinColumn(name = "book_id"))
+    private Set<BookEntity> setBook;
+
+    public CategoryEntity(){
+        this.createdAt = new Date();
+        this.updatedAt = createdAt;
+    }
 }

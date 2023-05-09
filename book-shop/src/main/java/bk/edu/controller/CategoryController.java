@@ -1,12 +1,13 @@
 package bk.edu.controller;
 
-import bk.edu.data.entity.AuthorEntity;
-import bk.edu.data.mapper.AuthorMapper;
-import bk.edu.data.req.AuthorRequest;
+import bk.edu.data.mapper.CategoryMapper;
+import bk.edu.data.req.CategoryRequest;
 import bk.edu.data.response.base.MyResponse;
 import bk.edu.data.response.dto.AuthorDto;
-import bk.edu.service.AuthorService;
+import bk.edu.data.response.dto.CategoryDto;
+import bk.edu.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import bk.edu.data.entity.CategoryEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,36 +18,36 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-public class AuthorController {
+public class CategoryController {
     @Autowired
-    AuthorMapper authorMapper;
+    CategoryService categoryService;
 
     @Autowired
-    AuthorService authorService;
+    CategoryMapper categoryMapper;
 
-    @RequestMapping(value = "/api/v1/author", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthor(@RequestBody AuthorRequest authorRequest) {
-        AuthorEntity authorEntity = authorService.createAuthor(authorRequest);
+    @RequestMapping(value = "/api/v1/category", method = RequestMethod.POST)
+    public ResponseEntity<?> createAuthor(@RequestBody CategoryRequest categoryRequest) {
+        CategoryEntity categoryEntity = categoryService.createCategory(categoryRequest);
 
         MyResponse response = MyResponse
                 .builder()
                 .buildCode(200)
                 .buildMessage("Successfully")
-                .buildData(authorMapper.authorEntityToDto(authorEntity))
+                .buildData(categoryMapper.categoryEntityToDto(categoryEntity))
                 .get();
         return ResponseEntity.ok(response);
     }
 
-    @RequestMapping(value = "/api/v1/author/{pageId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/v1/category/{pageId}", method = RequestMethod.GET)
     public ResponseEntity<?> getAuthor(@PathVariable int pageId) {
         Pageable pageable = PageRequest.of(pageId, 10, Sort.by("createdAt").descending());
-        Page<AuthorEntity> authorEntityPage = authorService.getListAuthor(pageable);
-        List<AuthorDto> authorDtoList = authorMapper.listAuthorEntityToDto(authorEntityPage.toList());
+        Page<CategoryEntity> categoryEntityPage = categoryService.getListCategory(pageable);
+        List<CategoryDto> categoryDtoList = categoryMapper.listCategoryEntityToDto(categoryEntityPage.toList());
         MyResponse response = MyResponse
                 .builder()
                 .buildCode(200)
                 .buildMessage("Successfully")
-                .buildData(authorDtoList)
+                .buildData(categoryDtoList)
                 .get();
         return ResponseEntity.ok(response);
     }

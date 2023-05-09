@@ -26,4 +26,9 @@ public class PublisherEntity {
 
     @Column(name = "updated_at")
     private Date updatedAt;
+
+    public PublisherEntity(){
+        this.createdAt = new Date();
+        this.updatedAt = new Date();
+    }
 }

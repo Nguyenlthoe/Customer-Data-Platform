@@ -1,11 +1,11 @@
 package bk.edu.controller;
 
-import bk.edu.data.entity.AuthorEntity;
-import bk.edu.data.mapper.AuthorMapper;
-import bk.edu.data.req.AuthorRequest;
+import bk.edu.data.entity.PublisherEntity;
+import bk.edu.data.mapper.PublisherMapper;
+import bk.edu.data.req.PublisherRequest;
 import bk.edu.data.response.base.MyResponse;
-import bk.edu.data.response.dto.AuthorDto;
-import bk.edu.service.AuthorService;
+import bk.edu.data.response.dto.PublisherDto;
+import bk.edu.service.PublisherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,36 +17,36 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-public class AuthorController {
+public class PublisherController {
     @Autowired
-    AuthorMapper authorMapper;
+    PublisherService publisherService;
 
     @Autowired
-    AuthorService authorService;
+    PublisherMapper publisherMapper;
 
-    @RequestMapping(value = "/api/v1/author", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthor(@RequestBody AuthorRequest authorRequest) {
-        AuthorEntity authorEntity = authorService.createAuthor(authorRequest);
+    @RequestMapping(value = "/api/v1/publisher", method = RequestMethod.POST)
+    public ResponseEntity<?> createAuthor(@RequestBody PublisherRequest PublisherRequest) {
+        PublisherEntity publisherEntity = publisherService.createPublisher(PublisherRequest);
 
         MyResponse response = MyResponse
                 .builder()
                 .buildCode(200)
                 .buildMessage("Successfully")
-                .buildData(authorMapper.authorEntityToDto(authorEntity))
+                .buildData(publisherMapper.publisherEntityToDto(publisherEntity))
                 .get();
         return ResponseEntity.ok(response);
     }
 
-    @RequestMapping(value = "/api/v1/author/{pageId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/v1/publisher/{pageId}", method = RequestMethod.GET)
     public ResponseEntity<?> getAuthor(@PathVariable int pageId) {
         Pageable pageable = PageRequest.of(pageId, 10, Sort.by("createdAt").descending());
-        Page<AuthorEntity> authorEntityPage = authorService.getListAuthor(pageable);
-        List<AuthorDto> authorDtoList = authorMapper.listAuthorEntityToDto(authorEntityPage.toList());
+        Page<PublisherEntity> publisherEntityPage = publisherService.getListPublisher(pageable);
+        List<PublisherDto> publisherDtoList = publisherMapper.listPublisherEntityToDto(publisherEntityPage.toList());
         MyResponse response = MyResponse
                 .builder()
                 .buildCode(200)
                 .buildMessage("Successfully")
-                .buildData(authorDtoList)
+                .buildData(publisherDtoList)
                 .get();
         return ResponseEntity.ok(response);
     }
