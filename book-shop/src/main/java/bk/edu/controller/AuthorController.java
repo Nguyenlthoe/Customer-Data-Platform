@@ -50,4 +50,17 @@ public class AuthorController {
                 .get();
         return ResponseEntity.ok(response);
     }
+
+    @RequestMapping(value = "/api/v1/author/{authorId}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateAuthor(@PathVariable int authorId,
+                                          @RequestBody AuthorRequest authorRequest) {
+        AuthorEntity authorEntity = authorService.updateAuthor(authorRequest, authorId);
+        MyResponse response = MyResponse
+                .builder()
+                .buildCode(200)
+                .buildMessage("Successfully")
+                .buildData(authorEntity)
+                .get();
+        return ResponseEntity.ok(response);
+    }
 }

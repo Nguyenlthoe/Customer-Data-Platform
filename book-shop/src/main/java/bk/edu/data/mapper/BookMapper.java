@@ -6,6 +6,8 @@ import bk.edu.data.entity.BookEntity;
 import bk.edu.data.entity.CategoryEntity;
 import bk.edu.data.entity.PublisherEntity;
 import bk.edu.data.req.BookRequest;
+import bk.edu.data.response.dto.BookDto;
+import bk.edu.data.response.dto.RelationDto;
 import bk.edu.exception.BookRequestInvalid;
 import bk.edu.repository.AuthorRepository;
 import bk.edu.repository.CategoryRepository;
@@ -13,6 +15,7 @@ import bk.edu.repository.PublisherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -27,6 +30,14 @@ public class BookMapper {
 
     @Autowired
     CategoryRepository categoryRepository;
+
+    public List<BookDto> listBookEntityToDto(List<BookEntity> list) {
+        List<BookDto> bookDtoList = new ArrayList<>();
+        list.forEach(bookEntity -> {
+            bookDtoList.add(bookEntityToDto(bookEntity));
+        });
+        return bookDtoList;
+    }
 
     public BookEntity bookRequestToEntity(BookRequest bookRequest){
         BookEntity bookEntity = new BookEntity();
@@ -67,9 +78,26 @@ public class BookMapper {
         try {
             releaseDate = Config.FORMAT_DATE.parse(bookRequest.getReleaseDate());
         } catch (Exception e) {
-            throw new BookRequestInvalid("release_date must have format: yyyy-MM-dd");
+            throw new BookRequestInvalid("release_date must have format: yyyy/MM/dd");
         }
         bookEntity.setReleaseDate(releaseDate);
         return bookEntity;
+    }
+
+    public BookDto bookEntityToDto(BookEntity bookEntity) {
+        List<RelationDto> authors = new ArrayList<>();
+        List<RelationDto> categories = new ArrayList<>();
+        bookEntity.getAuthors().forEach(authorEntity -> {
+            authors.add(new RelationDto(authorEntity.getAuthorId(), authorEntity.getName()));
+        });
+        
+        bookEntity.getCategories().forEach(categoryEntity -> {
+            categories.add(new RelationDto(categoryEntity.getCategoryId(), categoryEntity.getName()));
+        });
+        RelationDto publisher = new RelationDto(bookEntity.getPublisher().getPublisherId(), bookEntity.getPublisher().getName());
+        return new BookDto(bookEntity.getBookId(), bookEntity.getName(),
+                bookEntity.getDescription(), bookEntity.getPrice(), 
+                bookEntity.getSales(), bookEntity.getViewCount(), 
+                publisher, authors, categories);
     }
 }

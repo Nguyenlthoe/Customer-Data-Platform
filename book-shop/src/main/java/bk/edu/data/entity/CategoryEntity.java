@@ -27,12 +27,8 @@ public class CategoryEntity {
     @Column(name = "updated_at")
     private Date updatedAt;
 
-    @ManyToMany
-    @JoinTable(
-            name = "bookshop_category_book_association",
-            joinColumns = @JoinColumn(name = "category_id"),
-            inverseJoinColumns = @JoinColumn(name = "book_id"))
-    private Set<BookEntity> setBook;
+    @ManyToMany(mappedBy = "categories")
+    private Set<BookEntity> categoryBooks;
 
     public CategoryEntity(){
         this.createdAt = new Date();

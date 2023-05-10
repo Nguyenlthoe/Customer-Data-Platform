@@ -33,12 +33,8 @@ public class AuthorEntity {
     @Column(name = "updated_at")
     private Date updatedAt;
 
-    @ManyToMany
-    @JoinTable(
-            name = "bookshop_author_book_association",
-            joinColumns = @JoinColumn(name = "author_id"),
-            inverseJoinColumns = @JoinColumn(name = "book_id"))
-    private List<BookEntity> listBook;
+    @ManyToMany(mappedBy = "authors")
+    private Set<BookEntity> authorBooks;
 
     public AuthorEntity(){
         this.createdAt = new Date();

@@ -37,11 +37,18 @@ public class BookEntity {
     @Column(name = "price")
     private int price;
 
-    @Column(name = "")
-    @ManyToMany(mappedBy = "setBook")
+    @ManyToMany
+    @JoinTable(
+            name = "bookshop_category_book_association",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id"))
     private Set<CategoryEntity> categories;
 
-    @ManyToMany(mappedBy = "listBook")
+    @ManyToMany
+    @JoinTable(
+            name = "bookshop_author_book_association",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id"))
     private Set<AuthorEntity> authors;
 
     @Column(name = "sales")
