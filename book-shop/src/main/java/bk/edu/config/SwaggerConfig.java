@@ -17,7 +17,7 @@ public class SwaggerConfig {
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2).select()
-                .apis(RequestHandlerSelectors.basePackage("com.vcc.bigdata.platform"))
+                .apis(RequestHandlerSelectors.basePackage("bk.edu"))
                 .paths(PathSelectors.regex("/.*"))
                 .build()
                 .apiInfo(apiEndPointsInfo());
@@ -25,9 +25,9 @@ public class SwaggerConfig {
 
     private ApiInfo apiEndPointsInfo() {
         return new ApiInfoBuilder()
-                .title("BrandSafety Service REST API")
-                .description("BrandSafety Service REST API")
-                .contact(new Contact("Phan Thanh Long", "", "longphanthanh@tech.admicro.vn"))
+                .title("Bookshop REST API")
+                .description("Bookshop REST API")
+                .contact(new Contact("Le Truong Nguyen", "", "nguyenlthoe@gmail.com"))
                 .version("1.0.0")
                 .build();
     }
