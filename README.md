@@ -1,6 +1,6 @@
 # Customer-Data-Platform
 
-Hướng dẫn sử dụng backend:
+Hướng dẫn sử dụng backend, cd vào module book-shop nhé ae:
 + B1: Clone Repo
 + B2: Cài đặt mysql trên máy, 
 + B3: Tạo database tên: `customer-data-platform`
