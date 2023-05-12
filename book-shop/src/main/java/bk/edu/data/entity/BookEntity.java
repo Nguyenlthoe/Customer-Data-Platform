@@ -64,6 +64,9 @@ public class BookEntity {
     @Column(name = "updated_at")
     private Date updatedAt;
 
+    @OneToMany(mappedBy = "book")
+    private Set<CartEntity> cart;
+
     public BookEntity(){
         this.viewCount = 0;
         this.sales = 0;

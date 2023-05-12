@@ -98,6 +98,6 @@ public class BookMapper {
         return new BookDto(bookEntity.getBookId(), bookEntity.getName(),
                 bookEntity.getDescription(), bookEntity.getPrice(), 
                 bookEntity.getSales(), bookEntity.getViewCount(), 
-                publisher, authors, categories);
+                publisher, authors, categories, bookEntity.getUrlImage(), null);
     }
 }
