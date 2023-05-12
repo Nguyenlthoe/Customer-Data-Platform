@@ -9,4 +9,5 @@ Hướng dẫn sử dụng backend, cd vào module book-shop nhé ae:
 + B6: Dòng 23 file trên, khởi chạy lần đầu nên bỏ comment, nó sẽ tự tạo các bảng như phần Entity đã cấu hình, 
 lưu ý: sau khi chạy lần đầu nên comment lại hoặc đổi create thành validate,
 nếu không, nó sẽ tạo lại bảng và xóa hết dữ liệu
++ B6: Ch
 + B7: chạy test thử vài api trên swagger: http://localhost:8180/swagger-ui.html#
