@@ -84,6 +84,13 @@ public class BookMapper {
         return bookEntity;
     }
 
+    public BookDto bookEntityToDtoRelation(BookEntity bookEntity, Integer quantity){
+        return new BookDto(bookEntity.getBookId(), bookEntity.getName(),
+                bookEntity.getDescription(), bookEntity.getPrice(),
+                null, null,
+                null, null, null, bookEntity.getUrlImage(), quantity);
+    }
+
     public BookDto bookEntityToDto(BookEntity bookEntity) {
         List<RelationDto> authors = new ArrayList<>();
         List<RelationDto> categories = new ArrayList<>();
