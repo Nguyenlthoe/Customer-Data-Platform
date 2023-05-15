@@ -55,7 +55,10 @@ public class UserEntity {
     private String address;
 
     @OneToMany(mappedBy = "user")
-    private Set<CartEntity> cart;
+    private Set<CartEntity> carts;
+
+    @OneToMany(mappedBy = "user")
+    private Set<BillEntity> bills;
 
     public UserEntity(){
         this.createdAt = new Date();

@@ -10,6 +10,7 @@ import bk.edu.exception.CartRequestInvalid;
 import bk.edu.repository.BookRepository;
 import bk.edu.repository.CartRepository;
 import bk.edu.repository.UserRepository;
+import org.apache.commons.collections4.iterators.IteratorIterable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -65,5 +66,16 @@ public class CartService {
         List<CartEntity> cartEntities = cartRepository.findAllByUser(user);
 
         return cartMapper.listCartEntityToDto(userId, cartEntities);
+    }
+
+    public void clearCart(Integer userId) {
+        UserEntity user = userRepository.findByUserId(userId);
+
+        if(user == null){
+            throw new CartRequestInvalid("User not found");
+        }
+        List<CartEntity> cartEntities = cartRepository.findAllByUser(user);
+        Iterable<CartEntity> carts = new IteratorIterable<>(cartEntities.iterator());
+        cartRepository.deleteAll(carts);
     }
 }

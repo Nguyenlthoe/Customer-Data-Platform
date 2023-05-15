@@ -19,10 +19,21 @@ public class CartController {
     CartMapper cartMapper;
 
     @RequestMapping(value = "/api/v1/cart/add", method = RequestMethod.GET)
-    public ResponseEntity<?> getAuthor(@RequestParam(value = "userId",required = true) Integer userId,
+    public ResponseEntity<?> addCart(@RequestParam(value = "userId",required = true) Integer userId,
                                        @RequestParam(value = "bookId") Integer bookId,
                                        @RequestParam(value = "quantity") Integer quantity) {
         cartService.addItem(bookId, userId, quantity);
+        MyResponse myResponse = MyResponse
+                .builder()
+                .buildCode(200)
+                .buildMessage("success")
+                .get();
+        return ResponseEntity.ok(myResponse);
+    }
+
+    @RequestMapping(value = "/api/v1/cart/clear", method = RequestMethod.GET)
+    public ResponseEntity<?> clearCart(@RequestParam(value = "userId", required = true) Integer userId){
+        cartService.clearCart(userId);
         MyResponse myResponse = MyResponse
                 .builder()
                 .buildCode(200)

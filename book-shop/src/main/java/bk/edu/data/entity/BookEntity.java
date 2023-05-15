@@ -67,6 +67,9 @@ public class BookEntity {
     @OneToMany(mappedBy = "book")
     private Set<CartEntity> cart;
 
+    @OneToMany(mappedBy = "book")
+    private Set<BillRelation> bills;
+
     public BookEntity(){
         this.viewCount = 0;
         this.sales = 0;
