@@ -51,4 +51,18 @@ public class CategoryController {
                 .get();
         return ResponseEntity.ok(response);
     }
+
+    @RequestMapping(value = "/api/v1/category/{categoryId}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateCategory(@PathVariable int categoryId,
+                                            @RequestBody CategoryRequest categoryRequest){
+        CategoryEntity categoryEntity = categoryService.updateCategory(categoryRequest, categoryId);
+        CategoryDto categoryDto = categoryMapper.categoryEntityToDto(categoryEntity);
+        MyResponse response = MyResponse
+                .builder()
+                .buildCode(200)
+                .buildMessage("Successfully")
+                .buildData(categoryDto)
+                .get();
+        return ResponseEntity.ok(response);
+    }
 }
