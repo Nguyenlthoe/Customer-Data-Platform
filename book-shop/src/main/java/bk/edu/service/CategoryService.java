@@ -39,6 +39,7 @@ public class CategoryService {
         if(categoryRequest.getName() != null){
             categoryEntity.setName(categoryRequest.getName());
         }
+        categoryRepository.saveAndFlush(categoryEntity);
         return categoryEntity;
     }
 }
