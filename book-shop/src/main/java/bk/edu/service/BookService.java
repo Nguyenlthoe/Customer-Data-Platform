@@ -112,4 +112,13 @@ public class BookService {
         bookRepository.saveAndFlush(bookEntity);
         return bookEntity;
     }
+
+    public List<BookEntity> getBookByCategory(Integer categoryId){
+        List<BookEntity> listBook = bookRepository.findByCategory(categoryId);
+
+        if(listBook == null){
+            throw new BookRequestInvalid("Book not exist by the category");
+        }
+        return listBook;
+    }
 }
