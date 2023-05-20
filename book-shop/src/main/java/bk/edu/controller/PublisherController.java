@@ -50,4 +50,16 @@ public class PublisherController {
                 .get();
         return ResponseEntity.ok(response);
     }
+
+    @RequestMapping(value = "/api/v1/publisher/{publisherId}", method = RequestMethod.PUT)
+    public ResponseEntity<?>  updatePublisher(@PathVariable int publisherId, @RequestBody PublisherRequest publisherRequest){
+        PublisherEntity publisherEntity = publisherService.updatePublisher(publisherRequest, publisherId);
+        MyResponse response = MyResponse
+                .builder()
+                .buildCode(200)
+                .buildMessage("Successfully")
+                .buildData(publisherEntity)
+                .get();
+        return ResponseEntity.ok(response);
+    }
 }
