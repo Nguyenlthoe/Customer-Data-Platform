@@ -16,6 +16,6 @@ public interface BookRepository extends JpaRepository<BookEntity, Integer> {
     BookEntity findById(int id);
 
     @Query(value = "SELECT * FROM bookshop_book AS b WHERE b.book_id IN (SELECT b1.book_id FROM bookshop_category_book_association AS b1 WHERE b1.category_id = :categoryId)", nativeQuery = true)
-    List<BookEntity> findByCategory(@Param("categoryId")Integer categoryId);
+    List<BookEntity> findByCategory(@Param("categoryId")Integer categoryId, Pageable pageable);
     Page<BookEntity> findAll(Pageable pageable);
 }
