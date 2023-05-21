@@ -63,4 +63,18 @@ public class BookController {
                 .get();
         return ResponseEntity.ok(response);
     }
+    @RequestMapping(value = "/api/v1/book/category/{categoryId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getBookByCategory(@PathVariable Integer categoryId){
+        List<BookEntity> listBook = bookService.getBookByCategory(categoryId);
+
+        List<BookDto> bookDtoList = bookMapper.listBookEntityToDto(listBook);
+
+        MyResponse response = MyResponse
+                .builder()
+                .buildCode(200)
+                .buildMessage("Successfully")
+                .buildData(bookDtoList)
+                .get();
+        return ResponseEntity.ok(response); // temp
+    }
 }
