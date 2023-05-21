@@ -21,13 +21,13 @@ public class CommentEntity {
     @Id
     private Integer commentId;
 
-    @Column(name = "content")
+    @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "create_at")
+    @Column(name = "created_at")
     private Date createAt;
 
-    @Column(name = "update_at")
+    @Column(name = "updated_at")
     private Date updateAt;
 
     @ManyToOne
