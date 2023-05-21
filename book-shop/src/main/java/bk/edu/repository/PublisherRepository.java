@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface PublisherRepository extends JpaRepository<PublisherEntity, Integer> {
-    PublisherEntity findByPublisherId(int id);
+    PublisherEntity findByPublisherId(int commentId);
 
     Page<PublisherEntity> findAll(Pageable pageable);
 }
