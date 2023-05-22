@@ -10,4 +10,6 @@ public interface SegmentRepository extends JpaRepository<SegmentEntity, Integer>
     SegmentEntity findByAdminAndName(AdminEntity adminEntity, String name);
 
     SegmentEntity findByAdminAndNameAndIsDeleted(AdminEntity adminEntity, String name, int i);
+
+    SegmentEntity findBySegmentIdAndIsDeleted(int segmentId, int i);
 }
