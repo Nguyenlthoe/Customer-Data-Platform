@@ -1,4 +1,4 @@
-package bk.edu.data.model;
+package bk.edu.data.request;
 
 import lombok.Getter;
 import lombok.Setter;

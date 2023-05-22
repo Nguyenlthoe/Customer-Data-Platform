@@ -4,7 +4,7 @@ import bk.edu.data.entity.AdminEntity;
 import bk.edu.data.entity.SegmentEntity;
 import bk.edu.data.mapper.SegmentMapper;
 import bk.edu.data.request.SegmentRequest;
-import bk.edu.exception.SegmentRequestInvalid;
+import bk.edu.exception.RequestInvalid;
 import bk.edu.repository.AdminRepository;
 import bk.edu.repository.SegmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +29,11 @@ public class SegmentService {
     public SegmentEntity createSegment(SegmentRequest segmentRequest, Integer userId) {
         Optional<AdminEntity> adminEntity = adminRepository.findById(userId);
         if(!adminEntity.isPresent()) {
-            throw new SegmentRequestInvalid("Admin not found");
+            throw new RequestInvalid("Admin not found");
         }
         SegmentEntity segment = segmentRepository.findByAdminAndNameAndIsDeleted(adminEntity.get(), segmentRequest.getName(), 0);
         if(segment != null){
-            throw new SegmentRequestInvalid("Title of segment has exited");
+            throw new RequestInvalid("Title of segment has exited");
         }
 
         SegmentEntity segmentEntity = segmentMapper.segmentRequestToEntity(segmentRequest);

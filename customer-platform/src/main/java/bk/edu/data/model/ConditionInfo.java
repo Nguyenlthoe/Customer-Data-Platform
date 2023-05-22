@@ -1,4 +1,13 @@
-package bk.edu.data.model;public class ConditionInfo {
+package bk.edu.data.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+@AllArgsConstructor
+@Getter
+@Setter
+public class ConditionInfo {
     private String field;
 
     private int operator;

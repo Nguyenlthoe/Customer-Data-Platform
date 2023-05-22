@@ -12,8 +12,8 @@ public class ConditionConfig {
         public static final int LESS_AND_EQUAL = 5;
         public static final int CONTAIN = 6;
 
-        static Map<Integer, String> mapOperatorIdToName;
-        static Map<String, Integer> mapNameToOperatorId;
+        public static Map<Integer, String> mapOperatorIdToName;
+        public static Map<String, Integer> mapNameToOperatorId;
 
         static {
             mapOperatorIdToName = new HashMap<>();
@@ -43,8 +43,8 @@ public class ConditionConfig {
         public static final int DATETIME = 6;
         public static final int BOOLEAN = 7;
 
-        static Map<Integer, String> mapTypeIdToName;
-        static Map<String, Integer> mapNameToTypeId;
+        public static Map<Integer, String> mapTypeIdToName;
+        public static Map<String, Integer> mapNameToTypeId;
 
         static {
             mapTypeIdToName = new HashMap<>();
