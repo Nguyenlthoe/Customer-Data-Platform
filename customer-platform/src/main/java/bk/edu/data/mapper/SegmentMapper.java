@@ -6,7 +6,6 @@ import bk.edu.data.model.ConditionInfo;
 import bk.edu.data.request.ConditionRequest;
 import bk.edu.data.request.SegmentRequest;
 import bk.edu.exception.RequestInvalid;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 

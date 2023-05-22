@@ -9,7 +9,7 @@ import org.apache.spark.sql.Row;
 import java.util.List;
 
 public class SegmentAllUser {
-    protected static SparkUtils sparkUtil;
+    protected SparkUtils sparkUtil;
 
     public SegmentAllUser(){
         sparkUtil = new SparkUtils("segment all user", true, true);

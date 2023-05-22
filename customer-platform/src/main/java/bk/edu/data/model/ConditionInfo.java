@@ -2,11 +2,13 @@ package bk.edu.data.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @AllArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
 public class ConditionInfo {
     private String field;
 
