@@ -37,6 +37,20 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @RequestMapping(value = "/api/v1/user", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateUser(@RequestBody UserRequest userRequest,
+                                        @RequestParam Integer userId) {
+        UserEntity userEntity = userService.updateUser(userRequest, userId);
+
+        MyResponse response = MyResponse
+                .builder()
+                .buildCode(200)
+                .buildMessage("Successfully")
+                .buildData(userMapper.userEntityToDto(userEntity))
+                .get();
+        return ResponseEntity.ok(response);
+    }
+
     @RequestMapping(value = "/api/v1/user/{pageId}", method = RequestMethod.GET)
     public ResponseEntity<?> getUser(@PathVariable int pageId) {
         Pageable pageable = PageRequest.of(pageId, 10, Sort.by("createdAt").descending());

@@ -1,17 +1,14 @@
 package bk.edu.data.mapper;
 
 import bk.edu.data.entity.BookEntity;
-import bk.edu.data.entity.CartEntity;
 import bk.edu.data.entity.CommentEntity;
 import bk.edu.data.entity.UserEntity;
 import bk.edu.data.req.CommentRequest;
 import bk.edu.data.response.dto.CommentDto;
 import bk.edu.exception.BookRequestInvalid;
-import bk.edu.exception.UserRequestInvalid;
+import bk.edu.exception.RequestInvalid;
 import bk.edu.repository.BookRepository;
 import bk.edu.repository.UserRepository;
-import bk.edu.service.BookService;
-import bk.edu.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +37,7 @@ public class CommentMapper {
         if( book == null) throw new BookRequestInvalid("Book do not exist");
         else commentEntity.setBook(book);
         UserEntity user = userRepository.findByUserId(commentRequest.getUser_id());
-        if( user == null) throw new UserRequestInvalid("User do not exist");
+        if( user == null) throw new RequestInvalid("User do not exist");
         else commentEntity.setUser(user);
         return commentEntity;
     }

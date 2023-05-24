@@ -4,11 +4,10 @@ import bk.edu.config.Config;
 import bk.edu.data.entity.UserEntity;
 import bk.edu.data.req.UserRequest;
 import bk.edu.data.response.dto.UserDto;
-import bk.edu.exception.UserRequestInvalid;
+import bk.edu.exception.RequestInvalid;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +26,7 @@ public class UserMapper {
             try {
                 userEntity.setBirthday(Config.FORMAT_DATE.parse(userRequest.getBirthday()));
             } catch (ParseException e) {
-                throw new UserRequestInvalid("format birthday must is: yyyy/MM/dd");
+                throw new RequestInvalid("format birthday must is: yyyy/MM/dd");
             }
         }
 

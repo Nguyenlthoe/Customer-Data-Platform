@@ -1,7 +1,7 @@
 package bk.edu.exception;
 
-public class UserRequestInvalid extends RuntimeException{
-    public UserRequestInvalid(String message) {
+public class RequestInvalid extends RuntimeException{
+    public RequestInvalid(String message) {
         super(message);
     }
 }

@@ -19,6 +19,7 @@ target/
 .project
 .settings
 .springBeans
+src/main/resources/application.properties
 .sts4-cache
 
 ### NetBeans ###
