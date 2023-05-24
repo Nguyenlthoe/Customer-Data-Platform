@@ -23,33 +23,35 @@ public class SegmentController {
     SegmentService segmentService;
 
 
-    @RequestMapping(value = "/api/v1/segment", method = RequestMethod.GET)
-    public ResponseEntity<?> getSegment(@RequestParam(value = "segmentId") Integer segmentId) {
-        SegmentEntity segment = segmentService.getSegment(segmentId);
 
-        MyResponse response = MyResponse
-                .builder()
-                .buildCode(200)
-                .buildMessage("Successfully")
-                .buildData(segment.getCustomers())
-                .get();
-        return ResponseEntity.ok(response);
-    }
 
-    @RequestMapping(value = "/api/v1/segment/{segmentId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/v1/page/segment/{segmentId}", method = RequestMethod.GET)
     public ResponseEntity<?> getCustomerBySegment(@PathVariable int segmentId,
                                                   @RequestParam(value = "pageId", required = false) Optional<Integer> page) {
         SegmentEntity segment = segmentService.getSegment(segmentId);
         int pageInt = page.orElse(0);
-        Pageable pageable = PageRequest.of(pageInt, 10, Sort.by("user_id").ascending());
+        Pageable pageable = PageRequest.of(pageInt, 10, Sort.Direction.ASC, "user_id");
         Page<CustomerEntity> customerEntityPage = segmentService.getCustomersBySegment(segmentId, pageable);
 
         Map<String, Object> mapReturn = new HashMap<>();
-        mapReturn.put("audiences", customerEntityPage.toList());
+        mapReturn.put("customers", customerEntityPage.toList());
         mapReturn.put("totalPages", customerEntityPage.getTotalPages());
         mapReturn.put("totalElements",customerEntityPage.getTotalElements());
         mapReturn.put("pageSize", 10);
         mapReturn.put("pageOffset", pageInt);
+        MyResponse response = MyResponse
+                .builder()
+                .buildCode(200)
+                .buildMessage("Successfully")
+                .buildData(mapReturn)
+                .get();
+        return ResponseEntity.ok(response);
+    }
+
+    @RequestMapping(value = "/api/v1/segment", method = RequestMethod.GET)
+    public ResponseEntity<?> getSegment(@RequestParam(value = "segmentId") Integer segmentId) {
+        SegmentEntity segment = segmentService.getSegment(segmentId);
+
         MyResponse response = MyResponse
                 .builder()
                 .buildCode(200)
