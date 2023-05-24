@@ -40,6 +40,20 @@ public class MySqlUtils {
         return this.mysqlConnection;
     }
 
+    public void getTime(){
+        String sql = "SELECT * FROM bookshop_customer where user_id = 1029 ;";
+        try {
+            PreparedStatement preparedStatement = mysqlConnection.prepareStatement(sql);
+            ResultSet rs = preparedStatement.executeQuery();
+            rs.next();
+            Timestamp timestamp = rs.getTimestamp("updated_at");
+            System.out.println(timestamp.getTime());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
 
     public List<SegmentInfo> getAllSegment() {
         List<SegmentInfo> segments = new ArrayList<>();

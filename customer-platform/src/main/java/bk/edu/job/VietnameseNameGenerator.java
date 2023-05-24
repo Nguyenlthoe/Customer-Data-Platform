@@ -8,12 +8,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mifmif.common.regex.Generex;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.sql.Date;
 
 public class VietnameseNameGenerator {
     private static final char[] SOURCE_CHARACTERS = {'À', 'Á', 'Â', 'Ã', 'È', 'É',
@@ -113,8 +111,8 @@ public class VietnameseNameGenerator {
             user.gender = 1;
         }
         user.birthday = getRandomBirthday();
-        user.email = removeAccent(lastName)
-                + removeAccent(firstName + middleName)
+        user.email = removeAccent(lastName).toLowerCase()
+                + removeAccent(firstName + middleName).toLowerCase()
                 + new SimpleDateFormat("yyyyddMM").format(new Date(user.birthday))
                 + "@gmail.com";
         Generex generex = new Generex("(0)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}");
@@ -135,18 +133,20 @@ public class VietnameseNameGenerator {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             for(int i = 0; i < user.size(); i++){
                 UserInfo userr = user.get(i);
-                Date birthday = new Date(userr.birthday);
-                Date timeNow = new Date(System.currentTimeMillis());
-                preparedStatement.setDate(1, birthday);
-                preparedStatement.setDate(2, timeNow);
+                Timestamp birthday = new Timestamp(userr.birthday);
+                Timestamp timeNow = new Timestamp(System.currentTimeMillis());
+                preparedStatement.setTimestamp(1, birthday);
+                preparedStatement.setTimestamp(2, timeNow);
                 preparedStatement.setString(3, userr.email);
                 preparedStatement.setInt(4, userr.gender);
                 preparedStatement.setString(5, userr.name);
                 preparedStatement.setString(6, userr.phoneNumber);
-                preparedStatement.setDate(7, timeNow);
+                preparedStatement.setTimestamp(7, timeNow);
                 preparedStatement.setInt(8, userr.provideCode );
                 preparedStatement.execute();
             }
+
+            preparedStatement.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -172,11 +172,15 @@ public class VietnameseNameGenerator {
         return calendar.getTimeInMillis();
     }
     public static void main(String[] args) throws JsonProcessingException {
-        VietnameseNameGenerator vietnameseNameGenerator = new VietnameseNameGenerator();
-        List<UserInfo> users = new ArrayList<>();
-        for(int i = 0; i < 1000; i++){
-            users.add(vietnameseNameGenerator.generateUser());
-        }
-        vietnameseNameGenerator.insertUser(users);
+//        VietnameseNameGenerator vietnameseNameGenerator = new VietnameseNameGenerator();
+//        List<UserInfo> users = new ArrayList<>();
+//        for(int i = 0; i < 1000; i++){
+//            users.add(vietnameseNameGenerator.generateUser());
+//        }
+//        vietnameseNameGenerator.insertUser(users);
+        MySqlUtils mySqlUtils = new MySqlUtils();
+        mySqlUtils.getTime();
+        mySqlUtils.close();
+        System.out.println(System.currentTimeMillis());
     }
 }

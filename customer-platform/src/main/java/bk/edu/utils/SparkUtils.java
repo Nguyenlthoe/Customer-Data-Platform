@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 public class SparkUtils implements Serializable {
 
     public SparkSession session;
-    public JavaSparkContext javaSparkContext;
     public SQLContext sqlContext;
 
     private String user = "book_shop";
@@ -27,11 +26,8 @@ public class SparkUtils implements Serializable {
     public SparkUtils(String nameJob, boolean log, boolean master) {
         System.out.println("- Create spark");
         session = createSparkConfig(nameJob, log, master);
-        javaSparkContext = new JavaSparkContext(session.sparkContext());
         sqlContext = session.sqlContext();
         System.out.println("- Create Done!!");
-
-        javaSparkContext.setLogLevel("ERROR");
     }
 
     public SparkSession createSparkConfig(String nameJob, boolean log, boolean master) {
@@ -70,7 +66,6 @@ public class SparkUtils implements Serializable {
 
     public void close() {
         session.close();
-        javaSparkContext.close();
     }
 
 }

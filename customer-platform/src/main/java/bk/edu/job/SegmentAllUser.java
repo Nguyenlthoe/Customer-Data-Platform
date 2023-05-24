@@ -11,16 +11,20 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.storage.StorageLevel;
 
+import java.io.Serializable;
 import java.sql.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Date;
 
-public class SegmentAllUser {
+public class SegmentAllUser implements Serializable{
     protected SparkUtils sparkUtil;
+
+    protected Long timeNow;
 
     public SegmentAllUser(){
         sparkUtil = new SparkUtils("segment all user", true, true);
+        timeNow = System.currentTimeMillis();
     }
     public static void main(String args[]){
         SegmentAllUser segmentAllUser = new SegmentAllUser();
@@ -30,7 +34,6 @@ public class SegmentAllUser {
     private void process() {
         MySqlUtils mySqlUtils = new MySqlUtils();
         List<SegmentInfo> segments = mySqlUtils.getAllSegment();
-        mySqlUtils.close();
 
         Dataset<Row> df = sparkUtil.getTableDataframe("bookshop_customer");
         df.persist(StorageLevel.MEMORY_ONLY());
@@ -39,7 +42,41 @@ public class SegmentAllUser {
             System.out.println(segmentInfo.getSegmentId());
             linkSegmentAndUser(segmentInfo, df);
         });
+
+        df.foreachPartition(new ForeachPartitionFunction<Row>() {
+            @Override
+            public void call(Iterator<Row> rows) throws Exception {
+
+                String selectSql = "SELECT * FROM cdp_segment_customer_association WHERE user_id = ? ;";
+                String deleteSql = "DELETE FROM cdp_segment_customer_association WHERE (`user_id` = ? and `segment_id` = ? );";
+                MySqlUtils mySqlUtil = new MySqlUtils();
+                Connection mysqlConnection = mySqlUtil.getConnection();
+                PreparedStatement selectP = mysqlConnection.prepareStatement(selectSql);
+                PreparedStatement deleteP = mysqlConnection.prepareStatement(deleteSql);
+                while (rows.hasNext()){
+                    Row row = rows.next();
+                    int user_id = row.getInt(0);
+
+                    deleteP.setInt(1, user_id);
+                    selectP.setInt(1, user_id);
+                    ResultSet rs = selectP.executeQuery();
+                    while (rs.next()){
+                        Timestamp timestamp = rs.getTimestamp("updated_at");
+                        if (timestamp.getTime() < timeNow){
+                            int segment_id = rs.getInt("segment_id");
+                            deleteP.setInt(2, segment_id);
+                            deleteP.executeUpdate();
+                        }
+                    }
+
+                }
+                mySqlUtil.close();
+            }
+        });
+        System.out.println(df.count());
         df.unpersist();
+
+        mySqlUtils.close();
     }
 
     private void linkSegmentAndUser(SegmentInfo segmentInfo, Dataset<Row> df){
@@ -67,7 +104,7 @@ public class SegmentAllUser {
                 PreparedStatement selectP = mysqlConnection.prepareStatement(selectSql);
                 PreparedStatement insertP = mysqlConnection.prepareStatement(insertSql);
                 PreparedStatement updateP = mysqlConnection.prepareStatement(updateSql);
-                Long time = System.currentTimeMillis() + TimeUtils.A_HOUR_IN_MILLISECOND * 7;
+                Long time = System.currentTimeMillis();
                 Timestamp timestamp = new Timestamp(time);
                 ResultSet selectRs;
                 while (rows.hasNext()){
