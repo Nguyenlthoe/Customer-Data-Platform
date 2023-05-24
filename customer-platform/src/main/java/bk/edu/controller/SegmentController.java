@@ -41,7 +41,7 @@ public class SegmentController {
                                                   @RequestParam(value = "pageId", required = false) Optional<Integer> page) {
         SegmentEntity segment = segmentService.getSegment(segmentId);
         int pageInt = page.orElse(0);
-        Pageable pageable = PageRequest.of(pageInt, 10, Sort.by("name").descending());
+        Pageable pageable = PageRequest.of(pageInt, 10, Sort.by("user_id").ascending());
         Page<CustomerEntity> customerEntityPage = segmentService.getCustomersBySegment(segmentId, pageable);
 
         Map<String, Object> mapReturn = new HashMap<>();

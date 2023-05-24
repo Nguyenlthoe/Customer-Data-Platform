@@ -115,7 +115,7 @@ public class VietnameseNameGenerator {
                 + removeAccent(firstName + middleName).toLowerCase()
                 + new SimpleDateFormat("yyyyddMM").format(new Date(user.birthday))
                 + "@gmail.com";
-        Generex generex = new Generex("(0)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}");
+        Generex generex = new Generex("(0)(3[2-9]5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}");
 
         generex.getMatchedString(2);
         user.phoneNumber = generex.random();

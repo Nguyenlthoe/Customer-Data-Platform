@@ -1,5 +1,6 @@
 package bk.edu.job;
 
+import bk.edu.config.Config;
 import bk.edu.data.model.ConditionInfo;
 import bk.edu.data.model.SegmentInfo;
 import bk.edu.utils.MySqlUtils;
@@ -28,19 +29,32 @@ public class SegmentAllUser implements Serializable{
     }
     public static void main(String args[]){
         SegmentAllUser segmentAllUser = new SegmentAllUser();
-        segmentAllUser.process();
+//        if(args[0].equals("all")){
+//
+//            segmentAllUser.process(true);
+//        } else {
+            segmentAllUser.process(false);
+//        }
     }
 
-    private void process() {
+    private void process(boolean processAll) {
         MySqlUtils mySqlUtils = new MySqlUtils();
         List<SegmentInfo> segments = mySqlUtils.getAllSegment();
 
         Dataset<Row> df = sparkUtil.getTableDataframe("bookshop_customer");
-        df.persist(StorageLevel.MEMORY_ONLY());
+        if(!processAll) {
+            Long time = System.currentTimeMillis() - TimeUtils.A_MINUTE_IN_MILLISECOND * 10;
+            String filterEpr = "updated_at > '" + Config.FORMAT_DATETIME_SQL.format(new Date(time)) + "'";
+            df = df.filter(filterEpr);
+        }
+        System.out.println("Number user process: " + df.count());
         df.show();
+        Dataset<Row> finalDf = df;
+
+        finalDf.persist(StorageLevel.MEMORY_ONLY());
         segments.forEach(segmentInfo -> {
             System.out.println(segmentInfo.getSegmentId());
-            linkSegmentAndUser(segmentInfo, df);
+            linkSegmentAndUser(segmentInfo, finalDf);
         });
 
         df.foreachPartition(new ForeachPartitionFunction<Row>() {
@@ -74,7 +88,7 @@ public class SegmentAllUser implements Serializable{
             }
         });
         System.out.println(df.count());
-        df.unpersist();
+        finalDf.unpersist();
 
         mySqlUtils.close();
     }

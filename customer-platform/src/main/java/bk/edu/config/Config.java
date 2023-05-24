@@ -8,4 +8,6 @@ public class Config {
     public static final SimpleDateFormat FORMAT_DATE = new SimpleDateFormat("yyyy/MM/dd");
 
     public static final SimpleDateFormat FORMAT_DATE_SQL = new SimpleDateFormat("yyyy-MM-dd");
+
+    public static final SimpleDateFormat FORMAT_DATETIME_SQL = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 }

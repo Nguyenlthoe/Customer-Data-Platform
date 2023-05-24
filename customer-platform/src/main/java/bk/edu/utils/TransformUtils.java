@@ -61,6 +61,8 @@ public class TransformUtils {
                 break;
         }
         expression = expression + value;
+
+        System.out.println(expression);
         Dataset<Row> filterDf = df.filter(expression);
         return filterDf;
     }
