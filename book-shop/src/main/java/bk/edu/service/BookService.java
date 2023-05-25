@@ -113,10 +113,10 @@ public class BookService {
         return bookEntity;
     }
 
-    public List<BookEntity> getBookByCategory(Integer categoryId){
-        List<BookEntity> listBook = bookRepository.findByCategory(categoryId);
+    public List<BookEntity> getBookByCategory(Integer categoryId, Pageable pageable){
+        List<BookEntity> listBook = bookRepository.findByCategory(categoryId, pageable);
 
-        if(listBook == null){
+        if(listBook.size() == 0){
             throw new BookRequestInvalid("Book not exist by the category");
         }
         return listBook;
