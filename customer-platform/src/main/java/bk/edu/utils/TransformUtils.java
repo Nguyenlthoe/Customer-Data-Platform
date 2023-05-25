@@ -9,11 +9,28 @@ import java.util.Date;
 
 public class TransformUtils {
     public static Dataset<Row> filterCondition(ConditionInfo condition, Dataset<Row> df){
+        if(condition.getOperator() == ConditionConfig.OperatorConfig.EQUAL
+            && condition.getType() == ConditionConfig.TypeConfig.DATETIME){
+            int numYear = Integer.parseInt(condition.getValue());
+            Long timeMax = TimeUtils.getYearBefore(numYear);
+            Long timeMin = TimeUtils.getYearBefore(numYear + 1);
+            String dateMax ="'" + Config.FORMAT_DATE_SQL.format(new Date(timeMax)) + "'";
+            String dateMin = "'" + Config.FORMAT_DATE_SQL.format(new Date(timeMin)) + "'";
+            Dataset<Row> finalDf = df
+                .filter(condition.getField() + " < " + dateMax)
+                .filter(condition.getField() + " > " + dateMin);
+            return finalDf;
+        }
+
         String value = condition.getValue();
         switch (condition.getType()){
             case ConditionConfig.TypeConfig.DATETIME:
                 int numYear = Integer.parseInt(condition.getValue());
                 Long datetime = TimeUtils.getYearBefore(numYear);
+                if(condition.getOperator() == ConditionConfig.OperatorConfig.GREATER
+                    || condition.getOperator() == ConditionConfig.OperatorConfig.LESS_AND_EQUAL){
+                    datetime = TimeUtils.getYearBefore(numYear + 1);
+                }
                 value ="'" + Config.FORMAT_DATE_SQL.format(new Date(datetime)) + "'";
                 break;
             case ConditionConfig.TypeConfig.STRING:

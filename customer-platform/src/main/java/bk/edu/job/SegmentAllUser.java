@@ -33,7 +33,7 @@ public class SegmentAllUser implements Serializable{
 //
 //            segmentAllUser.process(true);
 //        } else {
-            segmentAllUser.process(false);
+            segmentAllUser.process(true);
 //        }
     }
 

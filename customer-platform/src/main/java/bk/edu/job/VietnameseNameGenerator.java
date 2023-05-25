@@ -133,9 +133,9 @@ public class VietnameseNameGenerator {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             for(int i = 0; i < user.size(); i++){
                 UserInfo userr = user.get(i);
-                Timestamp birthday = new Timestamp(userr.birthday);
+                Date birthday = new Date(userr.birthday);
                 Timestamp timeNow = new Timestamp(System.currentTimeMillis());
-                preparedStatement.setTimestamp(1, birthday);
+                preparedStatement.setDate(1, birthday);
                 preparedStatement.setTimestamp(2, timeNow);
                 preparedStatement.setString(3, userr.email);
                 preparedStatement.setInt(4, userr.gender);
@@ -172,15 +172,15 @@ public class VietnameseNameGenerator {
         return calendar.getTimeInMillis();
     }
     public static void main(String[] args) throws JsonProcessingException {
-//        VietnameseNameGenerator vietnameseNameGenerator = new VietnameseNameGenerator();
-//        List<UserInfo> users = new ArrayList<>();
-//        for(int i = 0; i < 1000; i++){
-//            users.add(vietnameseNameGenerator.generateUser());
-//        }
-//        vietnameseNameGenerator.insertUser(users);
-        MySqlUtils mySqlUtils = new MySqlUtils();
-        mySqlUtils.getTime();
-        mySqlUtils.close();
-        System.out.println(System.currentTimeMillis());
+        VietnameseNameGenerator vietnameseNameGenerator = new VietnameseNameGenerator();
+        List<UserInfo> users = new ArrayList<>();
+        for(int i = 0; i < 1000; i++){
+            users.add(vietnameseNameGenerator.generateUser());
+        }
+        vietnameseNameGenerator.insertUser(users);
+//        MySqlUtils mySqlUtils = new MySqlUtils();
+//        mySqlUtils.getTime();
+//        mySqlUtils.close();
+//        System.out.println(System.currentTimeMillis());
     }
 }
