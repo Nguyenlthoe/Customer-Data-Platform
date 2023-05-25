@@ -64,8 +64,11 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
     @RequestMapping(value = "/api/v1/book/category/{categoryId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getBookByCategory(@PathVariable Integer categoryId){
-        List<BookEntity> listBook = bookService.getBookByCategory(categoryId);
+    public ResponseEntity<?> getBookByCategory(@PathVariable Integer categoryId,
+                                               @RequestParam(defaultValue = "0") int page){
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("name").descending());
+
+        List<BookEntity> listBook = bookService.getBookByCategory(categoryId, pageable);
 
         List<BookDto> bookDtoList = bookMapper.listBookEntityToDto(listBook);
 
