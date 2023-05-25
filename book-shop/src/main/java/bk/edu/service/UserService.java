@@ -65,7 +65,7 @@ public class UserService {
         }
 
         if(userRequest.getGender() != null){
-            userEntity.setName(userRequest.getName());
+            userEntity.setGender(userRequest.getGender());
         }
 
         if(userRequest.getUrlAvatar() != null){

@@ -29,12 +29,66 @@ public class SegmentAllUser implements Serializable{
     }
     public static void main(String args[]){
         SegmentAllUser segmentAllUser = new SegmentAllUser();
-//        if(args[0].equals("all")){
-//
-//            segmentAllUser.process(true);
-//        } else {
+        if(args[0].equals("all")){
+
+            segmentAllUser.process(true);
+        } else if (args[0].equals("new")) {
+            segmentAllUser.processNewSegment();
+        } else {
             segmentAllUser.process(false);
-//        }
+        }
+    }
+
+    private void processNewSegment(){
+        MySqlUtils mySqlUtils = new MySqlUtils();
+        List<SegmentInfo> segments = mySqlUtils.getNewSegment();
+
+        Dataset<Row> df = sparkUtil.getTableDataframe("bookshop_customer");
+
+        System.out.println("Number user process: " + df.count());
+        df.show();
+        Dataset<Row> finalDf = df;
+
+        finalDf.persist(StorageLevel.MEMORY_ONLY());
+        segments.forEach(segmentInfo -> {
+            System.out.println(segmentInfo.getSegmentId());
+            linkSegmentAndUser(segmentInfo, finalDf);
+        });
+
+        df.foreachPartition(new ForeachPartitionFunction<Row>() {
+            @Override
+            public void call(Iterator<Row> rows) throws Exception {
+
+                String selectSql = "SELECT * FROM cdp_segment_customer_association WHERE user_id = ? ;";
+                String deleteSql = "DELETE FROM cdp_segment_customer_association WHERE (`user_id` = ? and `segment_id` = ? );";
+                MySqlUtils mySqlUtil = new MySqlUtils();
+                Connection mysqlConnection = mySqlUtil.getConnection();
+                PreparedStatement selectP = mysqlConnection.prepareStatement(selectSql);
+                PreparedStatement deleteP = mysqlConnection.prepareStatement(deleteSql);
+                while (rows.hasNext()){
+                    Row row = rows.next();
+                    int user_id = row.getInt(0);
+
+                    deleteP.setInt(1, user_id);
+                    selectP.setInt(1, user_id);
+                    ResultSet rs = selectP.executeQuery();
+                    while (rs.next()){
+                        Timestamp timestamp = rs.getTimestamp("updated_at");
+                        if (timestamp.getTime() < timeNow){
+                            int segment_id = rs.getInt("segment_id");
+                            deleteP.setInt(2, segment_id);
+                            deleteP.executeUpdate();
+                        }
+                    }
+
+                }
+                mySqlUtil.close();
+            }
+        });
+        System.out.println(df.count());
+        finalDf.unpersist();
+
+        mySqlUtils.close();
     }
 
     private void process(boolean processAll) {
@@ -91,6 +145,10 @@ public class SegmentAllUser implements Serializable{
         finalDf.unpersist();
 
         mySqlUtils.close();
+    }
+
+    public void deleteAssociation(Dataset<Row> df){
+
     }
 
     private void linkSegmentAndUser(SegmentInfo segmentInfo, Dataset<Row> df){
