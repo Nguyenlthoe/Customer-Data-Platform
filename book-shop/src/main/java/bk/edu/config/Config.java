@@ -1,11 +1,22 @@
 package bk.edu.config;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class Config {
     public static final SimpleDateFormat FORMAT_DATE = new SimpleDateFormat("yyyy/MM/dd");
+
+    public static final Algorithm JWT_ALGORITHM = Algorithm.HMAC256("nguyenlt");
+    public static final JWTVerifier JWT_VERIFIER = JWT.require(JWT_ALGORITHM )
+            .withIssuer("auth")
+            .build();
 
     public static class BillStatus {
         public static final int ORDER = 1;

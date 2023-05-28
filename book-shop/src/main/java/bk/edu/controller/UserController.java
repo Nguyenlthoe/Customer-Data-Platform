@@ -2,6 +2,7 @@ package bk.edu.controller;
 
 import bk.edu.data.entity.UserEntity;
 import bk.edu.data.mapper.UserMapper;
+import bk.edu.data.req.LoginRequest;
 import bk.edu.data.req.UserRequest;
 import bk.edu.data.response.base.MyResponse;
 import bk.edu.data.response.dto.UserDto;
@@ -14,7 +15,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class UserController {
@@ -50,6 +53,34 @@ public class UserController {
                 .get();
         return ResponseEntity.ok(response);
     }
+
+    @RequestMapping(value = "/api/v1/login", method = RequestMethod.POST)
+    public ResponseEntity<?> logIn(@RequestBody LoginRequest loginRequest){
+        String jwt = userService.getToken(loginRequest,false);
+        Map<String, String> mapReturn = new HashMap<>();
+        mapReturn.put("jwt", jwt);
+        MyResponse response = MyResponse
+                .builder()
+                .buildCode(200)
+                .buildMessage("Successfully")
+                .buildData(mapReturn)
+                .get();
+        return ResponseEntity.ok(response);
+    };
+
+    @RequestMapping(value = "/api/v1/login/admin", method = RequestMethod.POST)
+    public ResponseEntity<?> loginAdmin(@RequestBody LoginRequest loginRequest){
+        String jwt = userService.getToken(loginRequest,true);
+        Map<String, String> mapReturn = new HashMap<>();
+        mapReturn.put("jwt", jwt);
+        MyResponse response = MyResponse
+                .builder()
+                .buildCode(200)
+                .buildMessage("Successfully")
+                .buildData(mapReturn)
+                .get();
+        return ResponseEntity.ok(response);
+    };
 
     @RequestMapping(value = "/api/v1/user/{pageId}", method = RequestMethod.GET)
     public ResponseEntity<?> getUser(@PathVariable int pageId) {

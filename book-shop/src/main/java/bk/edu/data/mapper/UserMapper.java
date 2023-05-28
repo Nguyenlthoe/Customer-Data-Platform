@@ -33,6 +33,7 @@ public class UserMapper {
         userEntity.setName(userRequest.getName());
         userEntity.setAddress(userRequest.getAddress());
         userEntity.setGender(userRequest.getGender());
+        userEntity.setPassword(userRequest.getPassword());
         userEntity.setEmail(userRequest.getEmail());
         userEntity.setPhoneNumber(userRequest.getPhoneNumber());
         userEntity.setUrlAvatar(userRequest.getUrlAvatar());
