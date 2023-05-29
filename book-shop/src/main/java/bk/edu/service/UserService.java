@@ -3,12 +3,15 @@ package bk.edu.service;
 import bk.edu.config.Config;
 import bk.edu.data.entity.UserEntity;
 import bk.edu.data.mapper.UserMapper;
+import bk.edu.data.req.AuthRequest;
 import bk.edu.data.req.LoginRequest;
 import bk.edu.data.req.UserRequest;
 import bk.edu.exception.RequestInvalid;
 import bk.edu.repository.AuthDao;
 import bk.edu.repository.UserRepository;
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.Claim;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -90,12 +93,21 @@ public class UserService {
         String jwtToken = JWT.create()
                 .withIssuer("auth")
                 .withSubject("sign in")
-                .withClaim("userId", userId)
-                .withClaim("isAdmin", isAdmin)
+                .withClaim("user_id", userId)
+                .withClaim("is_admin", isAdmin)
                 .withIssuedAt(new Date())
                 .withJWTId(UUID.randomUUID()
                         .toString())
                 .sign(Config.JWT_ALGORITHM);
         return jwtToken;
+    }
+
+    public void checkToken(AuthRequest authRequest) {
+        int userId = authRequest.getUserId();
+        DecodedJWT jwt = Config.JWT_VERIFIER.verify(authRequest.getToken());
+        Claim userClaim = jwt.getClaim("user_id");
+        if(userId != userClaim.asInt()){
+            throw new RequestInvalid("Token invalid");
+        }
     }
 }

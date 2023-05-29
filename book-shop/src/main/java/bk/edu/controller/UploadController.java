@@ -15,7 +15,7 @@ public class UploadController {
     @Autowired
     UploadService uploadService;
 
-    @PostMapping(value = "/api/v1/upload")
+    @PostMapping(value = "/upload")
     public ResponseEntity<?> upload(@RequestPart("file") MultipartFile file) {
         String url = uploadService.uploadFile(file);
 

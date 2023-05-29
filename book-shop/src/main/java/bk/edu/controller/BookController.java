@@ -24,7 +24,7 @@ public class BookController {
     @Autowired
     BookService bookService;
 
-    @RequestMapping(value = "/api/v1/book", method = RequestMethod.POST)
+    @RequestMapping(value = "/book", method = RequestMethod.POST)
     public ResponseEntity<?> createBook(@RequestBody BookRequest bookRequest) {
         BookEntity bookEntity = bookService.createBook(bookRequest);
         MyResponse response = MyResponse
@@ -36,7 +36,7 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
 
-    @RequestMapping(value = "/api/v1/book/{pageId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/book/{pageId}", method = RequestMethod.GET)
     public ResponseEntity<?> getBook(@PathVariable int pageId) {
         Pageable pageable = PageRequest.of(pageId, 10, Sort.by("createdAt").descending());
         Page<BookEntity> bookEntityPage = bookService.getListBook(pageable);
@@ -50,7 +50,7 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
 
-    @RequestMapping(value = "/api/v1/book/{bookId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/book/{bookId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateBook(@PathVariable int bookId,
                                           @RequestBody BookRequest bookRequest) {
         BookEntity bookEntity = bookService.updateBook(bookRequest, bookId);
@@ -63,7 +63,7 @@ public class BookController {
                 .get();
         return ResponseEntity.ok(response);
     }
-    @RequestMapping(value = "/api/v1/book/category/{categoryId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/book/category/{categoryId}", method = RequestMethod.GET)
     public ResponseEntity<?> getBookByCategory(@PathVariable Integer categoryId,
                                                @RequestParam(defaultValue = "0") int page){
         Pageable pageable = PageRequest.of(page, 10, Sort.by("name").descending());

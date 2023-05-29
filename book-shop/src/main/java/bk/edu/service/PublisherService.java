@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PublisherService {
     @Autowired
@@ -34,5 +36,9 @@ public class PublisherService {
         if(publisherRequest.getName() != null) publisherEntity.setName(publisherRequest.getName());
         publisherRepository.saveAndFlush(publisherEntity);
         return publisherEntity;
+    }
+
+    public List<PublisherEntity> getAllPublisher() {
+        return publisherRepository.findAll();
     }
 }

@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class AuthorService {
     @Autowired
@@ -44,4 +46,8 @@ public class AuthorService {
 
       return authorEntity;
     };
+
+    public List<AuthorEntity> getAllAuthor() {
+        return authorRepository.findAll();
+    }
 }
