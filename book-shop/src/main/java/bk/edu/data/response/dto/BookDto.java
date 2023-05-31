@@ -39,4 +39,7 @@ public class BookDto {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer quantity;
+
+
+    private String releaseDate;
 }

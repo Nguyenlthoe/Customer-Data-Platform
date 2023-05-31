@@ -85,10 +85,11 @@ public class BookMapper {
     }
 
     public BookDto bookEntityToDtoRelation(BookEntity bookEntity, Integer quantity){
+        String date = Config.FORMAT_DATE.format(bookEntity.getReleaseDate());
         return new BookDto(bookEntity.getBookId(), bookEntity.getName(),
                 bookEntity.getDescription(), bookEntity.getPrice(),
                 null, null,
-                null, null, null, bookEntity.getUrlImage(), quantity);
+                null, null, null, bookEntity.getUrlImage(), quantity, date);
     }
 
     public BookDto bookEntityToDto(BookEntity bookEntity) {
@@ -102,9 +103,11 @@ public class BookMapper {
             categories.add(new RelationDto(categoryEntity.getCategoryId(), categoryEntity.getName()));
         });
         RelationDto publisher = new RelationDto(bookEntity.getPublisher().getPublisherId(), bookEntity.getPublisher().getName());
+
+        String date = Config.FORMAT_DATE.format(bookEntity.getReleaseDate());
         return new BookDto(bookEntity.getBookId(), bookEntity.getName(),
                 bookEntity.getDescription(), bookEntity.getPrice(), 
                 bookEntity.getSales(), bookEntity.getViewCount(), 
-                publisher, authors, categories, bookEntity.getUrlImage(), null);
+                publisher, authors, categories, bookEntity.getUrlImage(), null, date);
     }
 }

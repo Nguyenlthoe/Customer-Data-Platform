@@ -61,7 +61,7 @@ public class UserController {
     public ResponseEntity<?> logIn(@RequestBody LoginRequest loginRequest){
         String jwt = userService.getToken(loginRequest,false);
         Map<String, String> mapReturn = new HashMap<>();
-        mapReturn.put("jwt", jwt);
+        mapReturn.put("token", jwt);
         MyResponse response = MyResponse
                 .builder()
                 .buildCode(200)

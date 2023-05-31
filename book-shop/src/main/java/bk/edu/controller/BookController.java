@@ -14,7 +14,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class BookController {
@@ -38,14 +40,20 @@ public class BookController {
 
     @RequestMapping(value = "/book/{pageId}", method = RequestMethod.GET)
     public ResponseEntity<?> getBook(@PathVariable int pageId) {
-        Pageable pageable = PageRequest.of(pageId, 10, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(pageId - 1, 10, Sort.by("createdAt").descending());
         Page<BookEntity> bookEntityPage = bookService.getListBook(pageable);
         List<BookDto> bookDtoList = bookMapper.listBookEntityToDto(bookEntityPage.toList());
+
+        Map<String, Object> mapReturn = new HashMap<>();
+        mapReturn.put("books", bookDtoList);
+        mapReturn.put("totalPage", bookEntityPage.getTotalPages());
+        mapReturn.put("pageSize", 10);
+        mapReturn.put("pageOffset", pageId);
         MyResponse response = MyResponse
                 .builder()
                 .buildCode(200)
                 .buildMessage("Successfully")
-                .buildData(bookDtoList)
+                .buildData(mapReturn)
                 .get();
         return ResponseEntity.ok(response);
     }
