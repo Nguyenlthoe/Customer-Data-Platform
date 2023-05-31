@@ -21,7 +21,8 @@ target/
 .settings
 .springBeans
 .sts4-cache
-
+/src/main/resources/static/*
+/public/static/images/*
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
