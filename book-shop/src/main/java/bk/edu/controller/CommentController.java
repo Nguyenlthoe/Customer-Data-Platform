@@ -22,7 +22,7 @@ public class CommentController {
     @Autowired
     CommentMapper commentMapper;
 
-    @RequestMapping(value = "/api/v1/comment/{commentId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/comment/{commentId}", method = RequestMethod.GET)
     public ResponseEntity<?> getComment(@PathVariable int commentId){
         CommentEntity commentEntity = commentService.getCommentById(commentId);
         MyResponse response = MyResponse
@@ -34,7 +34,7 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
-    @RequestMapping(value ="/api/v1/comment", method = RequestMethod.POST)
+    @RequestMapping(value ="/comment", method = RequestMethod.POST)
     public ResponseEntity<?> createComment(@RequestBody CommentRequest commentRequest){
         CommentEntity commentEntity = commentService.createComment(commentRequest);
         MyResponse response = MyResponse

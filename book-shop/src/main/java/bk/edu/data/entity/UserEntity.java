@@ -37,7 +37,7 @@ public class UserEntity {
     private Date createdAt;
 
     @Column(name = "gender")
-    private int gender;
+    private Integer gender;
 
     @Column(name = "birthday")
     private Date birthday;

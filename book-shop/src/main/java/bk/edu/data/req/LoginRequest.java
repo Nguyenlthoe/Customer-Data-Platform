@@ -5,8 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CategoryRequest {
-    private Integer id;
+public class LoginRequest {
+    private String email;
 
-    private String name;
+    private String password;
 }

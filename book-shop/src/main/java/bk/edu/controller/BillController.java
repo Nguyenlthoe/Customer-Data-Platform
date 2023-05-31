@@ -19,7 +19,7 @@ public class BillController {
     @Autowired
     BillMapper billMapper;
 
-    @RequestMapping(value = "/api/v1/bill", method = RequestMethod.POST)
+    @RequestMapping(value = "/bill", method = RequestMethod.POST)
     public ResponseEntity<?> addBill(@RequestParam(value = "userId",required = true) Integer userId,
                                      @RequestBody BillRequest billRequest) {
         billService.createBill(billRequest, userId);
@@ -31,7 +31,7 @@ public class BillController {
         return ResponseEntity.ok(myResponse);
     }
 
-    @RequestMapping(value = "/api/v1/bill", method = RequestMethod.GET)
+    @RequestMapping(value = "/bill", method = RequestMethod.GET)
     public ResponseEntity<?> getListBill(@RequestParam(value = "userId",required = true) Integer userId,
                                          @RequestParam(value = "status", required = true) Integer status) {
         List<BillDto> bill = billService.getBills(userId, status);

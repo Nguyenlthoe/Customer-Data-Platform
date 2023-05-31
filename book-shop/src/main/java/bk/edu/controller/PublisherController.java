@@ -14,7 +14,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class PublisherController {
@@ -24,8 +26,8 @@ public class PublisherController {
     @Autowired
     PublisherMapper publisherMapper;
 
-    @RequestMapping(value = "/api/v1/publisher", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthor(@RequestBody PublisherRequest PublisherRequest) {
+    @RequestMapping(value = "/publisher", method = RequestMethod.POST)
+    public ResponseEntity<?> createPublisher(@RequestBody PublisherRequest PublisherRequest) {
         PublisherEntity publisherEntity = publisherService.createPublisher(PublisherRequest);
 
         MyResponse response = MyResponse
@@ -37,21 +39,39 @@ public class PublisherController {
         return ResponseEntity.ok(response);
     }
 
-    @RequestMapping(value = "/api/v1/publisher/{pageId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/publisher/{pageId}", method = RequestMethod.GET)
     public ResponseEntity<?> getAuthor(@PathVariable int pageId) {
-        Pageable pageable = PageRequest.of(pageId, 10, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(pageId - 1, 10, Sort.by("createdAt").descending());
         Page<PublisherEntity> publisherEntityPage = publisherService.getListPublisher(pageable);
         List<PublisherDto> publisherDtoList = publisherMapper.listPublisherEntityToDto(publisherEntityPage.toList());
+
+        Map<String, Object> mapReturn = new HashMap<>();
+        mapReturn.put("publishers", publisherDtoList);
+        mapReturn.put("totalPage", publisherEntityPage.getTotalPages());
+        mapReturn.put("pageSize", 10);
+        mapReturn.put("pageOffset", pageId);
         MyResponse response = MyResponse
                 .builder()
                 .buildCode(200)
                 .buildMessage("Successfully")
-                .buildData(publisherDtoList)
+                .buildData(mapReturn)
                 .get();
         return ResponseEntity.ok(response);
     }
 
-    @RequestMapping(value = "/api/v1/publisher/{publisherId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/all/publisher", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllPublisher() {
+        List<PublisherEntity> publisherEntities = publisherService.getAllPublisher();
+        MyResponse response = MyResponse
+                .builder()
+                .buildCode(200)
+                .buildMessage("Successfully")
+                .buildData(publisherMapper.listPublisherEntityToDto(publisherEntities))
+                .get();
+        return ResponseEntity.ok(response);
+    }
+
+    @RequestMapping(value = "/publisher/{publisherId}", method = RequestMethod.PUT)
     public ResponseEntity<?>  updatePublisher(@PathVariable int publisherId, @RequestBody PublisherRequest publisherRequest){
         PublisherEntity publisherEntity = publisherService.updatePublisher(publisherRequest, publisherId);
         MyResponse response = MyResponse

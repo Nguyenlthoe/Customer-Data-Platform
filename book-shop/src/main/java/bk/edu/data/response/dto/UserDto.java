@@ -19,7 +19,7 @@ public class UserDto {
 
     private String phoneNumber;
 
-    private int gender;
+    private Integer gender;
 
     private String birthday;
 

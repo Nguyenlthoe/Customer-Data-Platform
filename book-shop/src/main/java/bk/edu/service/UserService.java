@@ -3,9 +3,15 @@ package bk.edu.service;
 import bk.edu.config.Config;
 import bk.edu.data.entity.UserEntity;
 import bk.edu.data.mapper.UserMapper;
+import bk.edu.data.req.AuthRequest;
+import bk.edu.data.req.LoginRequest;
 import bk.edu.data.req.UserRequest;
 import bk.edu.exception.RequestInvalid;
+import bk.edu.repository.AuthDao;
 import bk.edu.repository.UserRepository;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.Claim;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -21,6 +28,9 @@ public class UserService {
 
     @Autowired
     UserMapper userMapper;
+
+    @Autowired
+    AuthDao authDao;
 
     public Page<UserEntity> getListUser(Pageable pageable) {
         return userRepository.findAll(pageable);
@@ -65,7 +75,7 @@ public class UserService {
         }
 
         if(userRequest.getGender() != null){
-            userEntity.setName(userRequest.getName());
+            userEntity.setGender(userRequest.getGender());
         }
 
         if(userRequest.getUrlAvatar() != null){
@@ -76,5 +86,28 @@ public class UserService {
 
         userRepository.saveAndFlush(userEntity);
         return userEntity;
+    }
+
+    public String getToken(LoginRequest loginRequest, boolean isAdmin) {
+        int userId = authDao.getUser(loginRequest, isAdmin);
+        String jwtToken = JWT.create()
+                .withIssuer("auth")
+                .withSubject("sign in")
+                .withClaim("user_id", userId)
+                .withClaim("is_admin", isAdmin)
+                .withIssuedAt(new Date())
+                .withJWTId(UUID.randomUUID()
+                        .toString())
+                .sign(Config.JWT_ALGORITHM);
+        return jwtToken;
+    }
+
+    public void checkToken(AuthRequest authRequest) {
+        int userId = authRequest.getUserId();
+        DecodedJWT jwt = Config.JWT_VERIFIER.verify(authRequest.getToken());
+        Claim userClaim = jwt.getClaim("user_id");
+        if(userId != userClaim.asInt()){
+            throw new RequestInvalid("Token invalid");
+        }
     }
 }

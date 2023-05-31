@@ -83,4 +83,27 @@ public class MySqlUtils {
             e.printStackTrace();
         }
     }
+
+    public List<SegmentInfo> getNewSegment() {
+        Long time = System.currentTimeMillis() - TimeUtils.A_MINUTE_IN_MILLISECOND * 11;
+        Timestamp timestamp = new Timestamp(time);
+        List<SegmentInfo> segments = new ArrayList<>();
+        String sql = "SELECT segment_id, rule FROM cdp_segment where is_deleted = 0 and updated_at > ?;";
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            PreparedStatement preparedStatement = mysqlConnection.prepareStatement(sql);
+            preparedStatement.setTimestamp(1, timestamp);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Integer segmentId = rs.getInt("segment_id");
+                String rule = rs.getString("rule");
+                List<ConditionInfo> conditions = objectMapper.readValue(rule, new TypeReference<List<ConditionInfo>>() {
+                });
+                segments.add(new SegmentInfo(segmentId, conditions));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return segments;
+    }
 }

@@ -18,7 +18,7 @@ public class CartController {
     @Autowired
     CartMapper cartMapper;
 
-    @RequestMapping(value = "/api/v1/cart/add", method = RequestMethod.GET)
+    @RequestMapping(value = "/cart/add", method = RequestMethod.GET)
     public ResponseEntity<?> addCart(@RequestParam(value = "userId",required = true) Integer userId,
                                        @RequestParam(value = "bookId") Integer bookId,
                                        @RequestParam(value = "quantity") Integer quantity) {
@@ -31,7 +31,7 @@ public class CartController {
         return ResponseEntity.ok(myResponse);
     }
 
-    @RequestMapping(value = "/api/v1/cart/clear", method = RequestMethod.GET)
+    @RequestMapping(value = "/cart/clear", method = RequestMethod.GET)
     public ResponseEntity<?> clearCart(@RequestParam(value = "userId", required = true) Integer userId){
         cartService.clearCart(userId);
         MyResponse myResponse = MyResponse
@@ -42,7 +42,7 @@ public class CartController {
         return ResponseEntity.ok(myResponse);
     }
 
-    @RequestMapping(value = "/api/v1/cart", method = RequestMethod.GET)
+    @RequestMapping(value = "/cart", method = RequestMethod.GET)
     public ResponseEntity<?> getAuthor(@RequestParam(value = "userId",required = true) Integer userId) {
         CartDto cart = cartService.getCart(userId);
         MyResponse myResponse = MyResponse

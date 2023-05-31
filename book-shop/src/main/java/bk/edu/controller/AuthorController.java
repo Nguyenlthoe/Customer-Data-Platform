@@ -1,6 +1,7 @@
 package bk.edu.controller;
 
 import bk.edu.data.entity.AuthorEntity;
+import bk.edu.data.entity.CategoryEntity;
 import bk.edu.data.mapper.AuthorMapper;
 import bk.edu.data.req.AuthorRequest;
 import bk.edu.data.response.base.MyResponse;
@@ -14,7 +15,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class AuthorController {
@@ -24,7 +27,7 @@ public class AuthorController {
     @Autowired
     AuthorService authorService;
 
-    @RequestMapping(value = "/api/v1/author", method = RequestMethod.POST)
+    @RequestMapping(value = "/author", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthor(@RequestBody AuthorRequest authorRequest) {
         AuthorEntity authorEntity = authorService.createAuthor(authorRequest);
 
@@ -37,21 +40,39 @@ public class AuthorController {
         return ResponseEntity.ok(response);
     }
 
-    @RequestMapping(value = "/api/v1/author/{pageId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/author/{pageId}", method = RequestMethod.GET)
     public ResponseEntity<?> getAuthor(@PathVariable int pageId) {
-        Pageable pageable = PageRequest.of(pageId, 10, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(pageId - 1, 10, Sort.by("createdAt").descending());
         Page<AuthorEntity> authorEntityPage = authorService.getListAuthor(pageable);
         List<AuthorDto> authorDtoList = authorMapper.listAuthorEntityToDto(authorEntityPage.toList());
+
+        Map<String, Object> mapReturn = new HashMap<>();
+        mapReturn.put("authors", authorDtoList);
+        mapReturn.put("totalPage", authorEntityPage.getTotalPages());
+        mapReturn.put("pageSize", 10);
+        mapReturn.put("pageOffset", pageId);
         MyResponse response = MyResponse
                 .builder()
                 .buildCode(200)
                 .buildMessage("Successfully")
-                .buildData(authorDtoList)
+                .buildData(mapReturn)
                 .get();
         return ResponseEntity.ok(response);
     }
 
-    @RequestMapping(value = "/api/v1/author/{authorId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/all/author", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllAuthor() {
+        List<AuthorEntity> authorEntities = authorService.getAllAuthor();
+        MyResponse response = MyResponse
+                .builder()
+                .buildCode(200)
+                .buildMessage("Successfully")
+                .buildData(authorMapper.listAuthorEntityToDto(authorEntities))
+                .get();
+        return ResponseEntity.ok(response);
+    }
+
+    @RequestMapping(value = "/author/{authorId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateAuthor(@PathVariable int authorId,
                                           @RequestBody AuthorRequest authorRequest) {
         AuthorEntity authorEntity = authorService.updateAuthor(authorRequest, authorId);
