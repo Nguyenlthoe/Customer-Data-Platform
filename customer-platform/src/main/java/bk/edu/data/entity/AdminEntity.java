@@ -15,7 +15,7 @@ import java.util.Set;
 @Table(name = "cdp_admin")
 public class AdminEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @Column(name = "admin_id")
     @Id
     private Integer adminId;
 
