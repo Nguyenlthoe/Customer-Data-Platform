@@ -14,10 +14,11 @@ public class UploadService {
 
     public static final Path CURRENT_FOLDER = Paths.get(System.getProperty("user.dir"));
     public String uploadFile(MultipartFile image) {
-        Path staticResourcesPath = Paths.get("src/main/resources");
+        Path staticResourcesPath = Paths.get("public");
         Path staticPath = Paths.get("static");
         Path imagePath = Paths.get("images");
-        String imageName = image.getOriginalFilename().replace(" ", "_");
+        String imageName =System.currentTimeMillis() + "_" + image.getOriginalFilename().replace(" ", "_");
+        String path = "http://localhost:8180/static/images/" + imageName;
         Path file = CURRENT_FOLDER.resolve(staticResourcesPath).resolve(staticPath)
                 .resolve(imagePath).resolve(imageName);
         try{
@@ -26,6 +27,6 @@ public class UploadService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return file.toFile().getAbsolutePath();
+        return path;
     }
 }
