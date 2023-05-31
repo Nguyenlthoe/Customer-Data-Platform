@@ -14,10 +14,11 @@ public class UploadService {
 
     public static final Path CURRENT_FOLDER = Paths.get(System.getProperty("user.dir"));
     public String uploadFile(MultipartFile image) {
+        Path staticResourcesPath = Paths.get("src/main/resources");
         Path staticPath = Paths.get("static");
         Path imagePath = Paths.get("images");
         String imageName = image.getOriginalFilename().replace(" ", "_");
-        Path file = CURRENT_FOLDER.resolve(staticPath)
+        Path file = CURRENT_FOLDER.resolve(staticResourcesPath).resolve(staticPath)
                 .resolve(imagePath).resolve(imageName);
         try{
             OutputStream os = Files.newOutputStream(file);
