@@ -89,11 +89,13 @@ public class UserService {
     }
 
     public String getToken(LoginRequest loginRequest, boolean isAdmin) {
-        int userId = authDao.getUser(loginRequest, isAdmin);
+        UserEntity userEntity = authDao.getUser(loginRequest, isAdmin);
         String jwtToken = JWT.create()
                 .withIssuer("auth")
                 .withSubject("sign in")
-                .withClaim("user_id", userId)
+                .withClaim("user_id", userEntity.getUserId())
+                .withClaim("email", userEntity.getEmail())
+                .withClaim("phone_number", userEntity.getPhoneNumber())
                 .withClaim("is_admin", isAdmin)
                 .withIssuedAt(new Date())
                 .withJWTId(UUID.randomUUID()
