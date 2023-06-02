@@ -31,6 +31,17 @@ public class BillController {
         return ResponseEntity.ok(myResponse);
     }
 
+    @RequestMapping(value = "/bill/{billId}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> addBill(@PathVariable Integer billId) {
+        billService.deleteBill(billId);
+        MyResponse myResponse = MyResponse
+                .builder()
+                .buildCode(200)
+                .buildMessage("success")
+                .get();
+        return ResponseEntity.ok(myResponse);
+    }
+
     @RequestMapping(value = "/bill", method = RequestMethod.GET)
     public ResponseEntity<?> getListBill(@RequestParam(value = "userId",required = true) Integer userId,
                                          @RequestParam(value = "status", required = true) Integer status) {

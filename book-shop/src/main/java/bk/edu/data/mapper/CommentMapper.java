@@ -12,7 +12,9 @@ import bk.edu.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Service
 
@@ -25,7 +27,8 @@ public class CommentMapper {
     UserRepository userRepository;
 
     public CommentDto commentEntityToDto(CommentEntity commentEntity){
-        return new CommentDto(commentEntity.getCommentId(), commentEntity.getContent());
+        return new CommentDto(commentEntity.getCommentId(), commentEntity.getContent(),
+                commentEntity.getUser().getName(), commentEntity.getUser().getUserId());
     }
 
     public CommentEntity commentRequestToEntity(CommentRequest commentRequest){
@@ -40,5 +43,13 @@ public class CommentMapper {
         if( user == null) throw new RequestInvalid("User do not exist");
         else commentEntity.setUser(user);
         return commentEntity;
+    }
+
+    public List<CommentDto> listCommentEntityToDto(List<CommentEntity> list) {
+        List<CommentDto> commentDtoList = new ArrayList<>();
+        list.forEach(commentEntity -> {
+            commentDtoList.add(commentEntityToDto(commentEntity));
+        });
+        return commentDtoList;
     }
 }

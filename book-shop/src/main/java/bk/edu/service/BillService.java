@@ -57,14 +57,21 @@ public class BillService {
         }
 
         BillEntity billEntity = billMapper.billRequestToEntity(billRequest, user);
+
         billRepository.saveAndFlush(billEntity);
+        int[] total = {0};
         cartEntities.forEach(cartEntity -> {
             BillRelationKey billRelationKey = new BillRelationKey(billEntity.getBillId(), cartEntity.getBook().getBookId());
             BillRelation billRelation = new BillRelation(billRelationKey, billEntity,  cartEntity.getBook(), cartEntity.getQuantity());
+            total[0] += cartEntity.getBook().getPrice() * cartEntity.getQuantity();
             billRelationRepository.saveAndFlush(billRelation);
         });
 
+        billEntity.setTotal(total[0]);
         Iterable<CartEntity> carts = new IteratorIterable<>(cartEntities.iterator());
         cartRepository.deleteAll(carts);
+    }
+
+    public void deleteBill(Integer billId) {
     }
 }

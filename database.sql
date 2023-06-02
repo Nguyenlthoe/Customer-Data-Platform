@@ -5,7 +5,7 @@ CREATE TABLE `bookshop_author` (
   `name` varchar(255) DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`author_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `bookshop_author_book_association` (
   `book_id` int NOT NULL,
@@ -22,9 +22,10 @@ CREATE TABLE `bookshop_bill` (
   `phone_number` varchar(255) DEFAULT NULL,
   `status` int DEFAULT NULL,
   `user_id` int DEFAULT NULL,
+  `total` int DEFAULT NULL,
   PRIMARY KEY (`bill_id`),
   KEY `FKjwnuayk56ai1o3asn08k5451i` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `bookshop_bill_book_association` (
   `bill_id` int NOT NULL,
@@ -48,7 +49,7 @@ CREATE TABLE `bookshop_book` (
   `publisher_id` int DEFAULT NULL,
   PRIMARY KEY (`book_id`),
   KEY `FK4h9g6lx0ne2vsf623eo9giav3` (`publisher_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `bookshop_cart` (
   `book_id` int NOT NULL,
@@ -64,7 +65,7 @@ CREATE TABLE `bookshop_category` (
   `name` varchar(255) DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`category_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `bookshop_category_book_association` (
   `book_id` int NOT NULL,
@@ -100,7 +101,7 @@ CREATE TABLE `bookshop_customer` (
   `url_avatar` varchar(255) DEFAULT NULL,
   `province_code` int DEFAULT NULL,
   PRIMARY KEY (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=1234 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `bookshop_publisher` (
   `publisher_id` int NOT NULL AUTO_INCREMENT,
@@ -108,17 +109,17 @@ CREATE TABLE `bookshop_publisher` (
   `name` varchar(255) DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`publisher_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `cdp_admin` (
-  `admin_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
   `phone_number` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`admin_id`)
+  PRIMARY KEY (`user_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `cdp_segment` (
@@ -131,7 +132,7 @@ CREATE TABLE `cdp_segment` (
   `is_deleted` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`segment_id`),
   KEY `admin_id` (`admin_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `cdp_segment_customer_association` (
   `segment_id` int NOT NULL,

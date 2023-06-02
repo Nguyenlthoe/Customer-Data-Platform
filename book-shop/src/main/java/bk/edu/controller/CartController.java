@@ -43,7 +43,7 @@ public class CartController {
     }
 
     @RequestMapping(value = "/cart", method = RequestMethod.GET)
-    public ResponseEntity<?> getAuthor(@RequestParam(value = "userId",required = true) Integer userId) {
+    public ResponseEntity<?> getCart(@RequestParam(value = "userId",required = true) Integer userId) {
         CartDto cart = cartService.getCart(userId);
         MyResponse myResponse = MyResponse
                 .builder()

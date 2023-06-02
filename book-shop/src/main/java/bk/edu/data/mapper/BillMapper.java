@@ -17,6 +17,7 @@ import java.util.List;
 public class BillMapper {
     @Autowired
     BookMapper bookMapper;
+
     public BillEntity billRequestToEntity(BillRequest billRequest, UserEntity user) {
         BillEntity bill = new BillEntity();
         bill.setUser(user);
@@ -30,12 +31,11 @@ public class BillMapper {
 
     public BillDto billEntityToDto(BillEntity bill){
 
-        List<BookEntity> books = new ArrayList<>();
+        List<BookDto> books = new ArrayList<>();
         bill.getBillRelations().forEach(billRelation -> {
-            books.add(billRelation.getBook());
+            books.add(bookMapper.bookEntityToDtoRelation(billRelation.getBook(), billRelation.getQuantity()));
         });
-        List<BookDto> bookDtoList = bookMapper.listBookEntityToDto(books);
-        BillDto billDto = new BillDto(bill, bookDtoList);
+        BillDto billDto = new BillDto(bill, books);
         return billDto;
     }
 

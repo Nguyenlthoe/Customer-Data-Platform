@@ -53,7 +53,11 @@ public class CartService {
         } else {
             cart = new CartEntity(cartRelationKey, user, book, quantity);
         }
-        cartRepository.saveAndFlush(cart);
+        if(cart.getQuantity() <= 0){
+            cartRepository.delete(cart);
+        } else {
+            cartRepository.saveAndFlush(cart);
+        }
     }
 
     public CartDto getCart(Integer userId) {

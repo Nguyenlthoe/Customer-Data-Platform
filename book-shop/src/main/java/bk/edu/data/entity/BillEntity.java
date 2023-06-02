@@ -37,6 +37,9 @@ public class BillEntity {
     @Column(name = "status")
     private Integer status;
 
+    @Column(name = "total")
+    private Integer total;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity  user;

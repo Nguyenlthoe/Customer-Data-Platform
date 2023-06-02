@@ -85,11 +85,21 @@ public class BookMapper {
     }
 
     public BookDto bookEntityToDtoRelation(BookEntity bookEntity, Integer quantity){
+        List<RelationDto> authors = new ArrayList<>();
+        List<RelationDto> categories = new ArrayList<>();
+        bookEntity.getAuthors().forEach(authorEntity -> {
+            authors.add(new RelationDto(authorEntity.getAuthorId(), authorEntity.getName()));
+        });
+
+        bookEntity.getCategories().forEach(categoryEntity -> {
+            categories.add(new RelationDto(categoryEntity.getCategoryId(), categoryEntity.getName()));
+        });
+        RelationDto publisher = new RelationDto(bookEntity.getPublisher().getPublisherId(), bookEntity.getPublisher().getName());
         String date = Config.FORMAT_DATE.format(bookEntity.getReleaseDate());
         return new BookDto(bookEntity.getBookId(), bookEntity.getName(),
                 bookEntity.getDescription(), bookEntity.getPrice(),
                 null, null,
-                null, null, null, bookEntity.getUrlImage(), quantity, date);
+               publisher, authors , categories, bookEntity.getUrlImage(), quantity, date);
     }
 
     public BookDto bookEntityToDto(BookEntity bookEntity) {
