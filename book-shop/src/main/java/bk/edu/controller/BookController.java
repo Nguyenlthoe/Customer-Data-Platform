@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 public class BookController {
@@ -38,10 +39,39 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
 
+    @RequestMapping(value = "/detail/book/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> getDetailBook(@PathVariable int id){
+        BookEntity bookEntity = bookService.getBookDetail(id);
+
+        MyResponse response = MyResponse
+                .builder()
+                .buildCode(200)
+                .buildMessage("Successfully")
+                .buildData(bookMapper.bookEntityToDto(bookEntity))
+                .get();
+        return ResponseEntity.ok(response);
+    }
+
     @RequestMapping(value = "/book/{pageId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getBook(@PathVariable int pageId) {
-        Pageable pageable = PageRequest.of(pageId - 1, 10, Sort.by("createdAt").descending());
-        Page<BookEntity> bookEntityPage = bookService.getListBook(pageable);
+    public ResponseEntity<?> getBook(@PathVariable int pageId,
+                                     @RequestParam(value = "categoryId", required = false)Optional<Integer> categoryId,
+                                     @RequestParam(value = "authorId", required = false)Optional<Integer> authorId,
+                                     @RequestParam(value = "publisherId", required = false)Optional<Integer> publisherId,
+                                     @RequestParam(value = "keyword", required = false)Optional<String> keyword,
+                                     @RequestParam(value = "low", required = false) Optional<Integer> low,
+                                     @RequestParam(value = "high", required = false) Optional<Integer> high) {
+        String kw = keyword.orElse("");
+        kw = "%" + kw + "%";
+        Integer priceStart = low.orElse(0);
+        Integer priceEnd = high.orElse(2000000);
+        Page<BookEntity> bookEntityPage;
+        Pageable pageable = PageRequest.of(pageId - 1, 10, Sort.by("created_at").descending());
+        if (categoryId.isPresent()){
+            bookEntityPage = bookService.getBookByCategory(categoryId.get(), kw, priceStart, priceEnd , pageable);
+        } else {
+            bookEntityPage = bookService.getListBook(kw, priceStart, priceEnd, pageable);
+        }
+
         List<BookDto> bookDtoList = bookMapper.listBookEntityToDto(bookEntityPage.toList());
 
         Map<String, Object> mapReturn = new HashMap<>();
@@ -70,22 +100,5 @@ public class BookController {
                 .buildData(bookDto)
                 .get();
         return ResponseEntity.ok(response);
-    }
-    @RequestMapping(value = "/book/category/{categoryId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getBookByCategory(@PathVariable Integer categoryId,
-                                               @RequestParam(defaultValue = "0") int page){
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("name").descending());
-
-        List<BookEntity> listBook = bookService.getBookByCategory(categoryId, pageable);
-
-        List<BookDto> bookDtoList = bookMapper.listBookEntityToDto(listBook);
-
-        MyResponse response = MyResponse
-                .builder()
-                .buildCode(200)
-                .buildMessage("Successfully")
-                .buildData(bookDtoList)
-                .get();
-        return ResponseEntity.ok(response); // temp
     }
 }

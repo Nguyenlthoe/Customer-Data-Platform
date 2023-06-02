@@ -36,8 +36,8 @@ public class BookService {
     @Autowired
     BookMapper bookMapper;
 
-    public Page<BookEntity> getListBook(Pageable pageable) {
-        Page<BookEntity> bookEntityPage = bookRepository.findAll(pageable);
+    public Page<BookEntity> getListBook(String keyword, int low, int high, Pageable pageable) {
+        Page<BookEntity> bookEntityPage = bookRepository.findAllByRangeAndKeyword(low, high, keyword, pageable);
         return bookEntityPage;
     }
 
@@ -113,12 +113,14 @@ public class BookService {
         return bookEntity;
     }
 
-    public List<BookEntity> getBookByCategory(Integer categoryId, Pageable pageable){
-        List<BookEntity> listBook = bookRepository.findByCategory(categoryId, pageable);
+    public Page<BookEntity> getBookByCategory(Integer categoryId, String keyword, int low, int high, Pageable pageable){
+        Page<BookEntity> listBook = bookRepository.findByCategoryAndRangeAndKeyword(categoryId, low, high, keyword, pageable);
 
-        if(listBook.size() == 0){
-            throw new BookRequestInvalid("Book not exist by the category");
-        }
         return listBook;
+    }
+
+    public BookEntity getBookDetail(int id) {
+        BookEntity bookEntity = bookRepository.findById(id);
+        return bookEntity;
     }
 }

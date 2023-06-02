@@ -40,6 +40,19 @@ public class CategoryController {
         return ResponseEntity.ok(response);
     }
 
+    @RequestMapping(value = "/detail/category/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> getDetailCategory(@PathVariable int id) {
+        CategoryEntity categoryEntity = categoryService.getDetailCategory(id);
+
+        MyResponse response = MyResponse
+                .builder()
+                .buildCode(200)
+                .buildMessage("Successfully")
+                .buildData(categoryMapper.categoryEntityToDto(categoryEntity))
+                .get();
+        return ResponseEntity.ok(response);
+    }
+
     @RequestMapping(value = "/category", method = RequestMethod.PUT)
     public ResponseEntity<?> updateCategory(@RequestBody CategoryRequest categoryRequest) {
         CategoryEntity categoryEntity = categoryService.updateCategory(categoryRequest);

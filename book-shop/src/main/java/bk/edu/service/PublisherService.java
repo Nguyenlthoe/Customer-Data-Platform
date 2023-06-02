@@ -41,4 +41,8 @@ public class PublisherService {
     public List<PublisherEntity> getAllPublisher() {
         return publisherRepository.findAll();
     }
+
+    public PublisherEntity getDetailPublisher(int id) {
+        return publisherRepository.findByPublisherId(id);
+    }
 }

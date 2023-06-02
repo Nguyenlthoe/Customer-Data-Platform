@@ -48,4 +48,8 @@ public class CategoryService {
         categoryRepository.saveAndFlush(categoryEntity);
         return categoryEntity;
     }
+
+    public CategoryEntity getDetailCategory(int id) {
+        return categoryRepository.findByCategoryId(id);
+    }
 }

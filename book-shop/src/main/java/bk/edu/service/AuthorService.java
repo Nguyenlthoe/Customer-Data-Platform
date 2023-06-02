@@ -50,4 +50,8 @@ public class AuthorService {
     public List<AuthorEntity> getAllAuthor() {
         return authorRepository.findAll();
     }
+
+    public AuthorEntity getDetailAuthor(int id) {
+        return authorRepository.findByAuthorId(id);
+    }
 }

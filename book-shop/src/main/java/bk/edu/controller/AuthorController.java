@@ -60,6 +60,18 @@ public class AuthorController {
         return ResponseEntity.ok(response);
     }
 
+    @RequestMapping(value = "/detail/author/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> getDetailAuthor(@PathVariable int id) {
+        AuthorEntity author = authorService.getDetailAuthor(id);
+        MyResponse response = MyResponse
+                .builder()
+                .buildCode(200)
+                .buildMessage("Successfully")
+                .buildData(authorMapper.authorEntityToDto(author))
+                .get();
+        return ResponseEntity.ok(response);
+    }
+
     @RequestMapping(value = "/all/author", method = RequestMethod.GET)
     public ResponseEntity<?> getAllAuthor() {
         List<AuthorEntity> authorEntities = authorService.getAllAuthor();

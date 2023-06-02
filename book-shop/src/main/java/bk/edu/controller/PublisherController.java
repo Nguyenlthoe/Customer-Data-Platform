@@ -39,6 +39,19 @@ public class PublisherController {
         return ResponseEntity.ok(response);
     }
 
+    @RequestMapping(value = "/detail/publisher/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> createPublisher(@PathVariable int id) {
+        PublisherEntity publisherEntity = publisherService.getDetailPublisher(id);
+
+        MyResponse response = MyResponse
+                .builder()
+                .buildCode(200)
+                .buildMessage("Successfully")
+                .buildData(publisherMapper.publisherEntityToDto(publisherEntity))
+                .get();
+        return ResponseEntity.ok(response);
+    }
+
     @RequestMapping(value = "/publisher/{pageId}", method = RequestMethod.GET)
     public ResponseEntity<?> getAuthor(@PathVariable int pageId) {
         Pageable pageable = PageRequest.of(pageId - 1, 10, Sort.by("createdAt").descending());
