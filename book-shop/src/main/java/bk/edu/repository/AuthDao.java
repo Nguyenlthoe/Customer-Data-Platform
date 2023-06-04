@@ -27,6 +27,7 @@ public class AuthDao {
             userEntity.setUserId((Integer) map.get("user_id"));
             userEntity.setEmail((String) map.get("email"));
             userEntity.setPhoneNumber((String)map.get("phone_number"));
+            userEntity.setName((String) map.get("name"));
             return userEntity;
         } else {
             throw new RequestInvalid("Email hoặc mật khẩu không đúng");
