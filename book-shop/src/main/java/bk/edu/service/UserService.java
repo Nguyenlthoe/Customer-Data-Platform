@@ -98,6 +98,7 @@ public class UserService {
                 .withClaim("phone_number", userEntity.getPhoneNumber())
                 .withClaim("is_admin", isAdmin)
                 .withClaim("username", userEntity.getName())
+                .withClaim("address", userEntity.getAddress())
                 .withIssuedAt(new Date())
                 .withJWTId(UUID.randomUUID()
                         .toString())
