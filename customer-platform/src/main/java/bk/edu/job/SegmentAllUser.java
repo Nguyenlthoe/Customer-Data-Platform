@@ -18,28 +18,29 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Date;
 
-public class SegmentAllUser implements Serializable{
-    protected SparkUtils sparkUtil;
+public class SegmentAllUser implements Serializable {
+
 
     protected Long timeNow;
 
     public SegmentAllUser(){
-        sparkUtil = new SparkUtils("segment all user", true, true);
         timeNow = System.currentTimeMillis();
     }
     public static void main(String args[]){
+
+        SparkUtils sparkUtil = new SparkUtils("segment all user", true, true);
         SegmentAllUser segmentAllUser = new SegmentAllUser();
         if(args[0].equals("all")){
 
-            segmentAllUser.process(true);
+            segmentAllUser.process(sparkUtil, true);
         } else if (args[0].equals("new")) {
-            segmentAllUser.processNewSegment();
+            segmentAllUser.processNewSegment(sparkUtil);
         } else {
-            segmentAllUser.process(false);
+            segmentAllUser.process(sparkUtil,false);
         }
     }
 
-    private void processNewSegment(){
+    private void processNewSegment(SparkUtils sparkUtil){
         MySqlUtils mySqlUtils = new MySqlUtils();
         List<SegmentInfo> segments = mySqlUtils.getNewSegment();
 
@@ -91,7 +92,7 @@ public class SegmentAllUser implements Serializable{
         mySqlUtils.close();
     }
 
-    private void process(boolean processAll) {
+    private void process(SparkUtils sparkUtil, boolean processAll) {
         MySqlUtils mySqlUtils = new MySqlUtils();
         List<SegmentInfo> segments = mySqlUtils.getAllSegment();
 

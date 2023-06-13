@@ -1,32 +1,42 @@
 package bk.edu.utils;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.streaming.Durations;
+import org.apache.spark.streaming.api.java.JavaStreamingContext;
 
 import java.io.Serializable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-public class SparkUtils implements Serializable {
+
+public class SparkUtils implements Serializable{
 
     public SparkSession session;
     public SQLContext sqlContext;
+    public JavaStreamingContext javaStreamingContext;
+    public JavaSparkContext javaSparkContext;
 
     private String user = "book_shop";
 
     private String password = "package1107N";
 
-    private String host = "172.25.0.7:3306";
+    private String host = "172.25.0.1:3306";
 
     private String dbName = "customer-data-platform";
 
     public SparkUtils(String nameJob, boolean log, boolean master) {
+        Logger.getLogger("org").setLevel(Level.OFF);
+        Logger.getLogger("akka").setLevel(Level.OFF);
         System.out.println("- Create spark");
         session = createSparkConfig(nameJob, log, master);
         sqlContext = session.sqlContext();
+        javaSparkContext = new JavaSparkContext(session.sparkContext());
+        javaStreamingContext = new JavaStreamingContext(javaSparkContext, Durations.seconds(60));
+
         System.out.println("- Create Done!!");
     }
 

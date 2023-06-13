@@ -22,7 +22,7 @@ public class MySqlUtils {
 
     private String password = "package1107N";
 
-    private String host = "172.25.0.7:3306";
+    private String host = "172.25.0.1:3306";
 
     private String dbName = "customer-data-platform";
 
