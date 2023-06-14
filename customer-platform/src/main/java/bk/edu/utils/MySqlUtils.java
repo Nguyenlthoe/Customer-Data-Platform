@@ -228,7 +228,7 @@ public class MySqlUtils {
                     while (rs.next()){
                         categoryIds.add(rs.getInt("category_id"));
                     }
-                    String categoryShort =" " + StringUtils.join(" , ", categoryIds) + " ";
+                    String categoryShort =" " + StringUtils.join(categoryIds, " , ") + " ";
                     preparedStatementUpdate.setString(1, categoryShort);
                     preparedStatementUpdate.setInt(2, userId);
                     preparedStatementUpdate.executeUpdate();
@@ -254,7 +254,7 @@ public class MySqlUtils {
             while (rs.next()){
                 categoryIds.add(rs.getInt("category_id"));
             }
-            String categoryShort =" " + StringUtils.join(" , ", categoryIds) + " ";
+            String categoryShort =" " + StringUtils.join(categoryIds, " , ") + " ";
             preparedStatementUpdate.setString(1, categoryShort);
             preparedStatementUpdate.setInt(2, userId);
             preparedStatementUpdate.executeUpdate();
