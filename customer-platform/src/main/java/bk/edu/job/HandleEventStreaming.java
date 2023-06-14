@@ -20,6 +20,7 @@ import org.apache.spark.streaming.kafka010.KafkaUtils;
 import org.apache.spark.streaming.kafka010.LocationStrategies;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.jmx.export.naming.IdentityNamingStrategy;
 import scala.Serializable;
 import scala.Tuple2;
 
@@ -74,7 +75,7 @@ public class HandleEventStreaming {
         } catch (Exception e) {
             myEvent.setEvent("page_view");
         }
-        if (myEvent.getEvent().toString().contains("view")) {
+        if (myEvent.getEvent().toString().contains("view") && myEvent.getEvent_name().equals("product_action")) {
             for (int i = 0; i < data.length(); i++) {
 
                 try {
@@ -123,6 +124,7 @@ public class HandleEventStreaming {
                     int bookId = row.getInt(1);
                     if(!mySqlUtils.checkExistCustomerBook(userId, bookId)){
                         mySqlUtils.insertCustomerBook(userId, bookId);
+                        mySqlUtils.updateBookRead(userId);
                     }
                 } catch (Exception ignore){
 
@@ -144,6 +146,20 @@ public class HandleEventStreaming {
                     } else {
                         mySqlUtils.updateCustomerCategory(userId, categoryId);
                     }
+                } catch (Exception ignore){
+
+                }
+            }
+            mySqlUtils.close();
+        });
+        Dataset<Row> customerDf = df.select("user_id").distinct();
+        customerDf.foreachPartition((ForeachPartitionFunction<Row>) t -> {
+            MySqlUtils mySqlUtils = new MySqlUtils();
+            while (t.hasNext()){
+                Row row = t.next();
+                try {
+                    int userId = Integer.parseInt(row.getString(0));
+                    mySqlUtils.updateShortHobbies(userId);
                 } catch (Exception ignore){
 
                 }

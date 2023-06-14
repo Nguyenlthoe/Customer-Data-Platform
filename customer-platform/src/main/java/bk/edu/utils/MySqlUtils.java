@@ -4,6 +4,7 @@ import bk.edu.data.model.ConditionInfo;
 import bk.edu.data.model.SegmentInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.api.java.function.ForeachPartitionFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -12,10 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class MySqlUtils {
     private String user = "book_shop";
@@ -60,8 +58,38 @@ public class MySqlUtils {
             preparedStatement.setInt(1, userId);
             ResultSet rs = preparedStatement.executeQuery();
             if(rs.next()){
+                int count = rs.getInt("count");
+                int sum = rs.getInt("sum");
+                insertCustomerBookAvg(userId, count, sum);
             }
         } catch (SQLException e) {
+
+        }
+    }
+
+    public void updateUpdatedTime(int userId){
+        String sql = "UPDATE `customer-data-platform`.`bookshop_customer` SET `updated_at` = ? WHERE (`user_id` = ? );\n";
+        try {
+            PreparedStatement preparedStatement = mysqlConnection.prepareStatement(sql);
+            preparedStatement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+            preparedStatement.setInt(2, userId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException ignore) {
+
+        }
+    }
+
+    public void insertCustomerBookAvg(int userId, int count, int sum){
+        String sql = "UPDATE `customer-data-platform`.`bookshop_customer` SET `total_book_read` = ? , `avg_book_value_read` = ? , `total_book_value_read` = ? WHERE (`user_id` = ? );\n";
+        try {
+            PreparedStatement preparedStatement = mysqlConnection.prepareStatement(sql);
+            preparedStatement.setInt(1, count);
+            double avg = sum * 1.0 / count;
+            preparedStatement.setDouble(2, avg);
+            preparedStatement.setInt(3, sum);
+            preparedStatement.setInt(4, userId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException ignore) {
 
         }
     }
@@ -182,6 +210,56 @@ public class MySqlUtils {
             System.out.println("close mysql");
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void updateShortHobbies(List<Integer> userIds) {
+        String selectSql = "SELECT * FROM cdp_customer_category_association where user_id = ? ;\n";
+        String updateSql = "UPDATE `bookshop_customer` SET `category_short` = ? WHERE (`user_id` = ? );\n";
+        try {
+            PreparedStatement preparedStatementUpdate = mysqlConnection.prepareStatement(updateSql);
+            PreparedStatement preparedStatementSelect = mysqlConnection.prepareStatement(selectSql);
+
+            userIds.forEach(userId -> {
+                try {
+                    preparedStatementSelect.setInt(1, userId);
+                    ResultSet rs = preparedStatementSelect.executeQuery();
+                    List<Integer> categoryIds = new ArrayList<>();
+                    while (rs.next()){
+                        categoryIds.add(rs.getInt("category_id"));
+                    }
+                    String categoryShort =" " + StringUtils.join(" , ", categoryIds) + " ";
+                    preparedStatementUpdate.setString(1, categoryShort);
+                    preparedStatementUpdate.setInt(2, userId);
+                    preparedStatementUpdate.executeUpdate();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (SQLException e) {
+            System.err.println("Insert failed");
+        }
+    }
+
+    public void updateShortHobbies(int userId) {
+        String selectSql = "SELECT * FROM cdp_customer_category_association where user_id = ? ;\n";
+        String updateSql = "UPDATE `bookshop_customer` SET `category_short` = ? WHERE (`user_id` = ? );\n";
+        try {
+            PreparedStatement preparedStatementUpdate = mysqlConnection.prepareStatement(updateSql);
+            PreparedStatement preparedStatementSelect = mysqlConnection.prepareStatement(selectSql);
+
+            preparedStatementSelect.setInt(1, userId);
+            ResultSet rs = preparedStatementSelect.executeQuery();
+            List<Integer> categoryIds = new ArrayList<>();
+            while (rs.next()){
+                categoryIds.add(rs.getInt("category_id"));
+            }
+            String categoryShort =" " + StringUtils.join(" , ", categoryIds) + " ";
+            preparedStatementUpdate.setString(1, categoryShort);
+            preparedStatementUpdate.setInt(2, userId);
+            preparedStatementUpdate.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Insert failed");
         }
     }
 }

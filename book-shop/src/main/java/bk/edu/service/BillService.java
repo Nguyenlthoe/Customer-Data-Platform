@@ -6,10 +6,7 @@ import bk.edu.data.req.BillRequest;
 import bk.edu.data.response.dto.BillDto;
 import bk.edu.exception.BillRequestInvalid;
 import bk.edu.exception.CartRequestInvalid;
-import bk.edu.repository.BillRelationRepository;
-import bk.edu.repository.BillRepository;
-import bk.edu.repository.CartRepository;
-import bk.edu.repository.UserRepository;
+import bk.edu.repository.*;
 import org.apache.commons.collections4.iterators.IteratorIterable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +26,9 @@ public class BillService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    MySqlDao mySqlDao;
 
     @Autowired
     CartRepository cartRepository;
@@ -70,6 +70,7 @@ public class BillService {
         billEntity.setTotal(total[0]);
         Iterable<CartEntity> carts = new IteratorIterable<>(cartEntities.iterator());
         cartRepository.deleteAll(carts);
+        mySqlDao.updateBillInfo(userId);
     }
 
     public void deleteBill(Integer billId) {
