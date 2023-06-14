@@ -20,7 +20,7 @@ public class Config {
         static {
             KAFKA_PARAM = new HashMap<>();
 
-            KAFKA_PARAM.put("bootstrap.servers", "172.25.0.8:9092,172.25.0.9:9093");
+            KAFKA_PARAM.put("bootstrap.servers", "172.25.0.8:9093,172.25.0.9:9092");
             KAFKA_PARAM.put("key.deserializer", StringDeserializer.class);
             KAFKA_PARAM.put("value.deserializer", StringDeserializer.class);
             KAFKA_PARAM.put("group.id", "handle_event" + System.currentTimeMillis());

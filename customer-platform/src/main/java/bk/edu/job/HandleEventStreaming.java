@@ -4,10 +4,12 @@ import bk.edu.config.Config;
 import bk.edu.data.model.BookContext;
 import bk.edu.data.model.EventKafka;
 import bk.edu.data.model.MyEvent;
+import bk.edu.utils.MySqlUtils;
 import bk.edu.utils.SparkUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.function.ForeachPartitionFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -22,6 +24,7 @@ import scala.Serializable;
 import scala.Tuple2;
 
 import java.net.URL;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -29,9 +32,10 @@ public class HandleEventStreaming {
 
     private SparkUtils sparkUtils;
 
-    public HandleEventStreaming(){
+    public HandleEventStreaming() {
         this.sparkUtils = new SparkUtils("streaming", false, true);
     }
+
     public static void main(String[] args) {
         try {
             HandleEventStreaming matching = new HandleEventStreaming();
@@ -40,10 +44,58 @@ public class HandleEventStreaming {
             e.printStackTrace();
         }
     }
-    public static EventKafka transformRow(Row row) {
+
+    public static MyEvent transformRow(Row row) {
         String value = row.getAs(0);
-        return new EventKafka(value);
+        String[] propertyIndex = value.split("\t");
+        String event_name = propertyIndex[126];
+        String event_id = propertyIndex[6];
+        MyEvent myEvent = new MyEvent();
+        long collector_tstamp = Timestamp.valueOf(propertyIndex[3]).getTime();
+        String user_id = propertyIndex[12];
+        String domain_userid = propertyIndex[15];
+        JSONObject unstruct_event = null;
+        try {
+             unstruct_event = new JSONObject(propertyIndex[58]);
+        } catch (Exception e){
+
+        }
+        JSONObject context = new JSONObject(propertyIndex[52]);
+        JSONArray data = context.getJSONArray("data");
+
+
+        myEvent.setCollector_tstamp(collector_tstamp);
+        myEvent.setUser_id(user_id);
+        myEvent.setDomain_userid(domain_userid);
+        myEvent.setEvent_name(event_name);
+        myEvent.setEvent_id(event_id);
+        try {
+            myEvent.setEvent(unstruct_event.getJSONObject("data").getString("data"));
+        } catch (Exception e) {
+            myEvent.setEvent("page_view");
+        }
+        if (myEvent.getEvent().toString().contains("view")) {
+            for (int i = 0; i < data.length(); i++) {
+
+                try {
+                    JSONObject jsonObject = data.getJSONObject(i);
+                    if (jsonObject.getString("schema").equals("iglu:com.bookshop/product_context/jsonschema/1-0-0")) {
+                        JSONObject databook = jsonObject.getJSONObject("data");
+                        myEvent.setBook(databook.getInt("product_id"), databook.getInt("category_id"),
+                                databook.getInt("publisher_id"), databook.getInt("author_id"), databook.getInt("price"));
+                        break;
+                    }
+                } catch (Exception e) {
+
+                }
+            }
+        } else {
+            myEvent = null;
+        }
+
+        return myEvent;
     }
+
     public void run() throws InterruptedException {
         JavaStreamingContext javaStreamingContext = sparkUtils.javaStreamingContext;
         JavaInputDStream<ConsumerRecord<Objects, Objects>> stream =
@@ -52,14 +104,53 @@ public class HandleEventStreaming {
                         LocationStrategies.PreferConsistent(),
                         ConsumerStrategies.Subscribe(Config.kafka.TOPIC, Config.kafka.KAFKA_PARAM));
         stream.foreachRDD((consumerRecordJavaRDD, time) -> {
-            JavaRDD<EventKafka> rows = consumerRecordJavaRDD
+            JavaRDD<MyEvent> rows = consumerRecordJavaRDD
                     .map(consumerRecord -> RowFactory.create(consumerRecord.value(), consumerRecord.topic()))
                     .map(HandleEventStreaming::transformRow)
                     .filter(Objects::nonNull);
-            JavaRDD<MyEvent> myEventJavaRDD = rows.map(HandleEventStreaming::transformEvent);
-            Dataset<Row> df = sparkUtils.session.createDataFrame(myEventJavaRDD, MyEvent.class);
-            df.show();
-            df.printSchema();
+            Dataset<Row> df = sparkUtils.session.createDataFrame(rows, MyEvent.class);
+
+        df.show();
+        df.printSchema();
+        System.out.println(df.count());
+        Dataset<Row> bookCustomerDf = df.select("user_id", "book_id").distinct();
+        bookCustomerDf.foreachPartition((ForeachPartitionFunction<Row>) t -> {
+            MySqlUtils mySqlUtils = new MySqlUtils();
+            while (t.hasNext()){
+                Row row = t.next();
+                try {
+                    int userId = Integer.parseInt(row.getString(0));
+                    int bookId = row.getInt(1);
+                    if(!mySqlUtils.checkExistCustomerBook(userId, bookId)){
+                        mySqlUtils.insertCustomerBook(userId, bookId);
+                    }
+                } catch (Exception ignore){
+
+                }
+            }
+            mySqlUtils.close();
+        });
+        System.out.println(bookCustomerDf.count());
+        Dataset<Row> categoryCustomerDf = df.select("user_id", "category_id").distinct();
+        categoryCustomerDf.foreachPartition((ForeachPartitionFunction<Row>) t -> {
+            MySqlUtils mySqlUtils = new MySqlUtils();
+            while (t.hasNext()){
+                Row row = t.next();
+                try {
+                    int userId = Integer.parseInt(row.getString(0));
+                    int categoryId = row.getInt(1);
+                    if(!mySqlUtils.checkExistCustomerCategory(userId, categoryId)){
+                        mySqlUtils.insertCustomerCategory(userId, categoryId);
+                    } else {
+                        mySqlUtils.updateCustomerCategory(userId, categoryId);
+                    }
+                } catch (Exception ignore){
+
+                }
+            }
+            mySqlUtils.close();
+        });
+        System.out.println(categoryCustomerDf.count());
 //            Dataset<Row> df = sparkUtils.session.createDataFrame(rows, EventKafka.class);
 //            Dataset<Row> dfFinal = df.select("collector_tstamp", "event", "event_id", "event_name", "contexts", "unstruct_event", "user_id", "domain_userid");
 //            dfFinal.show();
@@ -69,7 +160,7 @@ public class HandleEventStreaming {
         javaStreamingContext.awaitTermination();
     }
 
-    private static MyEvent transformEvent(EventKafka eventKafka) {
+    public static MyEvent transformEvent(EventKafka eventKafka) {
         MyEvent myEvent = new MyEvent();
         myEvent.setEvent_name(eventKafka.getEvent_name());
         myEvent.setEvent_id(eventKafka.getEvent_id());
@@ -77,22 +168,32 @@ public class HandleEventStreaming {
         myEvent.setUser_id(eventKafka.getUser_id());
         myEvent.setDomain_userid(eventKafka.getDomain_userid());
         JSONArray data = eventKafka.getContexts().getJSONArray("data");
-        for(int i = 0; i < data.length(); i++){
-            JSONObject jsonObject = data.getJSONObject(i);
-            if(jsonObject.getString("schema").equals("iglu:com.bookshop/product_context/jsonschema/1-0-0")){
-                JSONObject databook = jsonObject.getJSONObject("data");
+        try {
+            myEvent.setEvent(eventKafka.getUnstruct_event().getJSONObject("data").getString("data"));
+        } catch (Exception e) {
+            myEvent.setEvent("page_view");
+        }
+        if (myEvent.getEvent().equals("view")) {
+            for (int i = 0; i < data.length(); i++) {
+
                 try {
-                    BookContext bookContext = new BookContext(databook.getInt("product_id"), databook.getInt("category_id"),
-                            databook.getInt("publisher_id"), databook.getInt("author_id"), databook.getInt("price"));
-                    myEvent.getBooks().add(bookContext);
-                } catch (Exception e){
+                    JSONObject jsonObject = data.getJSONObject(i);
+                    if (jsonObject.getString("schema").equals("iglu:com.bookshop/product_context/jsonschema/1-0-0")) {
+                        JSONObject databook = jsonObject.getJSONObject("data");
+                        myEvent.setBook(databook.getInt("product_id"), databook.getInt("category_id"),
+                                databook.getInt("publisher_id"), databook.getInt("author_id"), databook.getInt("price"));
+                        break;
+                    }
+                } catch (Exception e) {
 
                 }
-
             }
+        } else {
+            myEvent.setBook(-1, -1, -1, -1, -1);
         }
 
-        myEvent.setEvent(eventKafka.getUnstruct_event().getJSONObject("data").getString("data"));
         return myEvent;
-    };
+    }
+
+    ;
 }

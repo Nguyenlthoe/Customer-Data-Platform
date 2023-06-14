@@ -26,6 +26,22 @@ public class MyEvent implements Serializable {
 
     private String event;
 
-    private List<BookContext> books= new ArrayList<>();
+    private int book_id;
+
+    private int category_id;
+
+    private int publisher_id;
+
+    private int author_id;
+
+    private int price;
+
+    public void setBook(int book_id, int category_id, int publisher_id, int author_id, int price){
+        this.book_id = book_id;
+        this.category_id = category_id;
+        this.publisher_id = publisher_id;
+        this.author_id = author_id;
+        this.price = price;
+    }
 
 }
