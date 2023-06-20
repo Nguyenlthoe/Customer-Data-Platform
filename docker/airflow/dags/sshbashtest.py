@@ -13,10 +13,7 @@ default_args = {
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
 }
-dag = DAG(dag_id='testing_stuff',
-          default_args=default_args,
-          schedule_interval='0 * * * *',
-          dagrun_timeout=timedelta(seconds=120))
+dag = DAG(dag_id="example_dag_tag", schedule="0 * * * *", tags=["example"])
 # Step 1 - Dump data from postgres databases
 t1_bash = """
 echo 'Hello World'
