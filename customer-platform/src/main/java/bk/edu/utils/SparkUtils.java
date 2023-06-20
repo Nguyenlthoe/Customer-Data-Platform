@@ -29,8 +29,8 @@ public class SparkUtils implements Serializable{
     private String dbName = "customer-data-platform";
 
     public SparkUtils(String nameJob, boolean log, boolean master) {
-        Logger.getLogger("org").setLevel(Level.OFF);
-        Logger.getLogger("akka").setLevel(Level.OFF);
+//        Logger.getLogger("org").setLevel(Level.OFF);
+//        Logger.getLogger("akka").setLevel(Level.OFF);
         System.out.println("- Create spark");
         session = createSparkConfig(nameJob, log, master);
         sqlContext = session.sqlContext();

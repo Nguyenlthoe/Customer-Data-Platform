@@ -112,8 +112,8 @@ public class HandleEventStreaming {
             Dataset<Row> df = sparkUtils.session.createDataFrame(rows, MyEvent.class);
 
         df.show();
-        df.printSchema();
-        System.out.println(df.count());
+        //df.printSchema();
+        //System.out.println(df.count());
         Dataset<Row> bookCustomerDf = df.select("user_id", "book_id").distinct();
         bookCustomerDf.foreachPartition((ForeachPartitionFunction<Row>) t -> {
             MySqlUtils mySqlUtils = new MySqlUtils();
@@ -166,7 +166,7 @@ public class HandleEventStreaming {
             }
             mySqlUtils.close();
         });
-        System.out.println(categoryCustomerDf.count());
+        System.out.println("Số lượng user có cập nhật" + customerDf.count());
 //            Dataset<Row> df = sparkUtils.session.createDataFrame(rows, EventKafka.class);
 //            Dataset<Row> dfFinal = df.select("collector_tstamp", "event", "event_id", "event_name", "contexts", "unstruct_event", "user_id", "domain_userid");
 //            dfFinal.show();
