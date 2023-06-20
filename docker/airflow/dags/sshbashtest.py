@@ -1,19 +1,13 @@
-from datetime import timedelta, datetime
-import airflow
-from airflow import DAG
-from airflow.contrib.operators.ssh_operator import SSHOperator
+from datetime import datetime
 
-default_args = {
-    'owner': 'airflow',
-    'depends_on_past': False,
-    'email': ['airflow@example.com'],
-    'email_on_failure': False,
-    'email_on_retry': False,
-    'start_date': datetime.now() - timedelta(minutes=20),
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5),
-}
-dag = DAG(dag_id="example_dag_tag", schedule="0 * * * *", tags=["example"])
+from airflow.models.dag import DAG
+from airflow.operators.bash import BashOperator
+from airflow.contrib.operators.ssh_operator import SSHOperator
+import pendulum
+
+dag = DAG(dag_id="example_dag_tag", schedule="0 * * * *",
+          tags=["example"],
+          start_date=pendulum.datetime(2021, 1, 1, tz="UTC"))
 # Step 1 - Dump data from postgres databases
 t1_bash = """
 echo 'Hello World'
