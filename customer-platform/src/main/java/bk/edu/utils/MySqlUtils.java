@@ -1,5 +1,6 @@
 package bk.edu.utils;
 
+import bk.edu.config.Config;
 import bk.edu.data.model.ConditionInfo;
 import bk.edu.data.model.SegmentInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -16,19 +17,14 @@ import java.sql.*;
 import java.util.*;
 
 public class MySqlUtils {
-    private String user = "book_shop";
-
-    private String password = "package1107N";
-
-    private String host = "172.25.0.1:3306";
-
-    private String dbName = "customer-data-platform";
 
     private Connection mysqlConnection;
 
     public MySqlUtils() {
         try {
-            mysqlConnection = DriverManager.getConnection("jdbc:mysql://" + host + "/" + dbName, user, password);
+            mysqlConnection = DriverManager.getConnection("jdbc:mysql://" + Config.MYSQL.HOST + "/" +
+                    Config.MYSQL.DBNAME,
+                    Config.MYSQL.USER, Config.MYSQL.PASSWORD);
         } catch (SQLException e) {
             e.printStackTrace();
         }

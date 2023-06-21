@@ -103,7 +103,7 @@ public class HandleEventStreaming {
                 KafkaUtils.createDirectStream(
                         sparkUtils.javaStreamingContext,
                         LocationStrategies.PreferConsistent(),
-                        ConsumerStrategies.Subscribe(Config.kafka.TOPIC, Config.kafka.KAFKA_PARAM));
+                        ConsumerStrategies.Subscribe(Config.KAFKA.TOPIC, Config.KAFKA.KAFKA_PARAM));
         stream.foreachRDD((consumerRecordJavaRDD, time) -> {
             JavaRDD<MyEvent> rows = consumerRecordJavaRDD
                     .map(consumerRecord -> RowFactory.create(consumerRecord.value(), consumerRecord.topic()))

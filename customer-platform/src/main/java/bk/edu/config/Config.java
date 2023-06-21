@@ -12,7 +12,7 @@ public class Config {
 
     public static final SimpleDateFormat FORMAT_DATETIME_SQL = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
-    public static class kafka {
+    public static class KAFKA {
         public static Map<String, Object> KAFKA_PARAM;
         
         public static Collection<String> TOPIC;
@@ -20,7 +20,7 @@ public class Config {
         static {
             KAFKA_PARAM = new HashMap<>();
 
-            KAFKA_PARAM.put("bootstrap.servers", "172.25.0.8:9092,172.25.0.7:9093");
+            KAFKA_PARAM.put("bootstrap.servers", "20.196.248.69:9092,20.196.245.32:9092");
             KAFKA_PARAM.put("key.deserializer", StringDeserializer.class);
             KAFKA_PARAM.put("value.deserializer", StringDeserializer.class);
             KAFKA_PARAM.put("group.id", "handle_event" + System.currentTimeMillis());
@@ -31,5 +31,15 @@ public class Config {
             topics.add("enriched");
             TOPIC = topics;
         }
+    }
+
+    public static class MYSQL {
+        public static String USER = "book_shop";
+
+        public static String PASSWORD = "package1107N";
+
+        public static String HOST = "20.196.248.69:3306";
+
+        public static String DBNAME = "customer-data-platform";
     }
 }

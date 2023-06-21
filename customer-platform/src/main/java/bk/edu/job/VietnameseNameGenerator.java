@@ -152,6 +152,11 @@ public class VietnameseNameGenerator {
         }
 
         mySqlUtils.close();
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Long getRandomBirthday(){
