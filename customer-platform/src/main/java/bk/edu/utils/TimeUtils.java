@@ -25,4 +25,17 @@ public class TimeUtils {
         }
         return cal.getTimeInMillis();
     }
+
+    public static Long getDayBefore(int numDay){
+        Calendar cal = Calendar.getInstance();
+        for(int i = 0; i < numDay; i++){
+            cal.add(Calendar.DATE, -1);
+        }
+        cal.set(Calendar.MILLISECOND, 0);
+        cal.set(Calendar.HOUR, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+
+        return cal.getTimeInMillis();
+    }
 }

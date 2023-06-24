@@ -1,5 +1,6 @@
 package bk.edu.utils;
 
+import bk.edu.config.Config;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -66,10 +67,10 @@ public class SparkUtils implements Serializable{
     public Dataset<Row> getTableDataframe(String tableName){
         Dataset<Row> df = session.read().format("jdbc")
                 .option("driver","com.mysql.cj.jdbc.Driver")
-                .option("url", "jdbc:mysql://" + host + "/" + dbName)
+                .option("url", "jdbc:mysql://" + Config.MYSQL.HOST + "/" + Config.MYSQL.DBNAME)
                 .option("dbtable", tableName)
-                .option("user", user)
-                .option("password", password)
+                .option("user", Config.MYSQL.USER)
+                .option("password", Config.MYSQL.PASSWORD)
                 .load();
         return df;
     }

@@ -34,6 +34,36 @@ public class MySqlUtils {
         return this.mysqlConnection;
     }
 
+    public Set<Integer> getListUserUpdate(){
+        Set<Integer> userIds = new HashSet<>();
+        String sql = "SELECT * FROM bookshop_customer_category_association where updated_at <= ?";
+        try {
+            PreparedStatement preparedStatement = mysqlConnection.prepareStatement(sql);
+            preparedStatement.setTimestamp(1, new Timestamp(TimeUtils.getDayBefore(Config.DATE_SHORT_HOBBY)));
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()){
+                int userId = rs.getInt("user_id");
+                userIds.add(userId);
+            }
+        } catch (SQLException e) {
+
+        }
+        return userIds;
+    }
+
+    public void deleteOldHobby(){
+        String sql = "DELETE FROM bookshop_customer_category_association where updated_at <= ?";
+        try {
+            PreparedStatement preparedStatement = mysqlConnection.prepareStatement(sql);
+            preparedStatement.setTimestamp(1, new Timestamp(TimeUtils.getDayBefore(Config.DATE_SHORT_HOBBY)));
+            preparedStatement.executeUpdate();
+
+            preparedStatement.close();
+        } catch (SQLException e) {
+
+        }
+    }
+
     public void getTime(){
         String sql = "SELECT * FROM bookshop_customer where user_id = 1029 ;";
         try {
@@ -211,7 +241,7 @@ public class MySqlUtils {
 
     public void updateShortHobbies(List<Integer> userIds) {
         String selectSql = "SELECT * FROM cdp_customer_category_association where user_id = ? ;\n";
-        String updateSql = "UPDATE `bookshop_customer` SET `category_short` = ? WHERE (`user_id` = ? );\n";
+        String updateSql = "UPDATE `bookshop_customer` SET `short_hobbies` = ? WHERE (`user_id` = ? );\n";
         try {
             PreparedStatement preparedStatementUpdate = mysqlConnection.prepareStatement(updateSql);
             PreparedStatement preparedStatementSelect = mysqlConnection.prepareStatement(selectSql);
@@ -239,7 +269,7 @@ public class MySqlUtils {
 
     public void updateShortHobbies(int userId) {
         String selectSql = "SELECT * FROM cdp_customer_category_association where user_id = ? ;\n";
-        String updateSql = "UPDATE `bookshop_customer` SET `category_short` = ? WHERE (`user_id` = ? );\n";
+        String updateSql = "UPDATE `bookshop_customer` SET `short_hobbies` = ? WHERE (`user_id` = ? );\n";
         try {
             PreparedStatement preparedStatementUpdate = mysqlConnection.prepareStatement(updateSql);
             PreparedStatement preparedStatementSelect = mysqlConnection.prepareStatement(selectSql);
@@ -252,6 +282,19 @@ public class MySqlUtils {
             }
             String categoryShort =" " + StringUtils.join(categoryIds, " , ") + " ";
             preparedStatementUpdate.setString(1, categoryShort);
+            preparedStatementUpdate.setInt(2, userId);
+            preparedStatementUpdate.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Insert failed");
+        }
+    }
+
+    public void insertLongHobbies(Integer userId, String longHobbies) {
+        String updateSql = "UPDATE `bookshop_customer` SET `long_hobbies` = ? WHERE (`user_id` = ? );\n";
+        try {
+            PreparedStatement preparedStatementUpdate = mysqlConnection.prepareStatement(updateSql);
+
+            preparedStatementUpdate.setString(1, longHobbies);
             preparedStatementUpdate.setInt(2, userId);
             preparedStatementUpdate.executeUpdate();
         } catch (SQLException e) {

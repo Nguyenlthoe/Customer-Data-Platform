@@ -33,13 +33,17 @@ public class HandleEventStreaming {
 
     private SparkUtils sparkUtils;
 
-    public HandleEventStreaming() {
-        this.sparkUtils = new SparkUtils("streaming", false, true);
+    public HandleEventStreaming(boolean log) {
+        this.sparkUtils = new SparkUtils("streaming", log, true);
     }
 
     public static void main(String[] args) {
         try {
-            HandleEventStreaming matching = new HandleEventStreaming();
+            boolean log = false;
+            if(args[0].equals("true")){
+                log = true;
+            }
+            HandleEventStreaming matching = new HandleEventStreaming(log);
             matching.run(); // streaming can throw exception
         } catch (Exception e) {
             e.printStackTrace();

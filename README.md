@@ -25,3 +25,16 @@ nếu không, nó sẽ tạo lại bảng và xóa hết dữ liệu
 + Chạy tất cả segment với tất cả user: `spark-submit --master yarn --deploy-mode client --class bk.edu.job.SegmentAllUser customer-platform-2.2.7.RELEASE-jar-with-dependencies.jar all`
 + Chạy những segment tạo mới, hoặc có sự cập nhật: `spark-submit --master yarn --deploy-mode client --class bk.edu.job.SegmentAllUser customer-platform-2.2.7.RELEASE-jar-with-dependencies.jar new`
 + Chạy những user mới cập nhật: `spark-submit --master yarn --deploy-mode client --class bk.edu.job.SegmentAllUser customer-platform-2.2.7.RELEASE-jar-with-dependencies.jar update`
+
+## NOTE linh tinh
+Trigger up
+```
+use `customer-data-platform`;
+DELIMITER $$
+CREATE TRIGGER set_updated_time
+BEFORE UPDATE ON bookshop_customer
+FOR EACH ROW 
+BEGIN SET new.updated_at = now();
+ END $$
+DELIMITER ;
+```

@@ -27,15 +27,15 @@ public class SegmentAllUser implements Serializable {
         timeNow = System.currentTimeMillis();
     }
     public static void main(String args[]){
-
-        SparkUtils sparkUtil = new SparkUtils("segment all user", true, true);
         SegmentAllUser segmentAllUser = new SegmentAllUser();
         if(args[0].equals("all")){
-
+            SparkUtils sparkUtil = new SparkUtils("segment all user", true, true);
             segmentAllUser.process(sparkUtil, true);
         } else if (args[0].equals("new")) {
+            SparkUtils sparkUtil = new SparkUtils("segment new segment", true, true);
             segmentAllUser.processNewSegment(sparkUtil);
         } else {
+            SparkUtils sparkUtil = new SparkUtils("segment user updated", true, true);
             segmentAllUser.process(sparkUtil,false);
         }
     }

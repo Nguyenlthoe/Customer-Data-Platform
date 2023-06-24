@@ -11,6 +11,10 @@ public class Config {
     public static final SimpleDateFormat FORMAT_DATE_SQL = new SimpleDateFormat("yyyy-MM-dd");
 
     public static final SimpleDateFormat FORMAT_DATETIME_SQL = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    public static final int DATE_SHORT_HOBBY = 3;
+
+    public static final int LIMIT_LONG_HOBBY = 4;
     
     public static class KAFKA {
         public static Map<String, Object> KAFKA_PARAM;
@@ -41,5 +45,17 @@ public class Config {
         public static String HOST = "20.196.248.69:3306";
 
         public static String DBNAME = "customer-data-platform";
+    }
+
+    public static class ELASTIC {
+        public static final String[] HOSTS = {"20.196.245.32"};
+
+        public static final String PORT = "9200";
+
+        public static final String USER = "";
+
+        public static final String PASSWORD = "";
+
+        public static final String TRACKING_INDEX = "tracking_action_product";
     }
 }
