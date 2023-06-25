@@ -1,5 +1,6 @@
 package bk.edu.service;
 
+import bk.edu.utils.HostUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,7 +19,7 @@ public class UploadService {
         Path staticPath = Paths.get("static");
         Path imagePath = Paths.get("images");
         String imageName =System.currentTimeMillis() + "_" + image.getOriginalFilename().replace(" ", "_");
-        String path = "http://localhost:8180/static/images/" + imageName;
+        String path = String.format("http://%s:10000/static/images/", HostUtils.getBackHost()) + imageName;
         Path file = CURRENT_FOLDER.resolve(staticResourcesPath).resolve(staticPath)
                 .resolve(imagePath).resolve(imageName);
         try{
