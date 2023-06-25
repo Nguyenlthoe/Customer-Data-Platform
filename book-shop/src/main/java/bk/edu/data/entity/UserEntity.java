@@ -45,7 +45,7 @@ public class UserEntity {
     @Column(name = "url_avatar")
     private String urlAvatar;
 
-    @Column(name = "hobby")
+    @Column(name = "long_hobbies")
     private String hobby;
 
     @Column(name = "updated_at")
