@@ -1,0 +1,1 @@
+java -jar target/book-shop-2.2.7.RELEASE.jar  --spring.datasource.url=$SPRING_DATASOURCE_URL
