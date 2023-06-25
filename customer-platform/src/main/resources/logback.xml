@@ -1,3 +1,0 @@
-<logger name="org.elasticsearch.client.RestClient" level="DEBUG" additivity="false">
-    <appender-ref ref="your_appender_block_name" />
-</logger>

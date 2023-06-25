@@ -17,6 +17,8 @@ public class UserRequest {
 
     private String address;
 
+    private Integer provinceCode;
+
     private String password;
 
     private String birthday;

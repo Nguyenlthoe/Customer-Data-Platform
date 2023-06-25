@@ -15,4 +15,6 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, Intege
                     "INNER JOIN cdp_segment_customer_association sc ON sc.user_id = c.user_id " +
                     "where sc.segment_id = :segmentId ",nativeQuery = true)
     Page<CustomerEntity> findAllBySegmentId(int segmentId, Pageable pageable);
+
+    CustomerEntity findByUserId(int id);
 }
