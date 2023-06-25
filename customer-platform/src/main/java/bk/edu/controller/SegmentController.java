@@ -2,6 +2,7 @@ package bk.edu.controller;
 
 import bk.edu.data.entity.CustomerEntity;
 import bk.edu.data.entity.SegmentEntity;
+import bk.edu.data.mapper.CustomerMapper;
 import bk.edu.data.request.SegmentRequest;
 import bk.edu.data.response.base.MyResponse;
 import bk.edu.service.SegmentService;
@@ -22,8 +23,8 @@ public class SegmentController {
     @Autowired
     SegmentService segmentService;
 
-
-
+    @Autowired
+    CustomerMapper customerMapper;
 
     @RequestMapping(value = "/api/v1/page/segment/{segmentId}", method = RequestMethod.GET)
     public ResponseEntity<?> getCustomerBySegment(@PathVariable int segmentId,
@@ -34,7 +35,7 @@ public class SegmentController {
         Page<CustomerEntity> customerEntityPage = segmentService.getCustomersBySegment(segmentId, pageable);
 
         Map<String, Object> mapReturn = new HashMap<>();
-        mapReturn.put("customers", customerEntityPage.toList());
+        mapReturn.put("customers", customerMapper.listCustomerEntityToDto(customerEntityPage.toList()));
         mapReturn.put("totalPages", customerEntityPage.getTotalPages());
         mapReturn.put("totalElements",customerEntityPage.getTotalElements());
         mapReturn.put("pageSize", 10);

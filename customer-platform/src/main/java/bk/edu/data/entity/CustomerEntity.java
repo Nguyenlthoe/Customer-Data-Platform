@@ -33,7 +33,7 @@ public class CustomerEntity {
     private Date createdAt;
 
     @Column(name = "gender")
-    private int gender;
+    private Integer gender;
 
     @Column(name = "birthday")
     private Date birthday;
@@ -41,14 +41,23 @@ public class CustomerEntity {
     @Column(name = "url_avatar")
     private String urlAvatar;
 
-    @Column(name = "hobby")
-    private String hobby;
-
     @Column(name = "updated_at")
     private Date updatedAt;
 
     @Column(name = "address")
     private String address;
+
+    @Column(name = "long_hobbies", columnDefinition = "TEXT")
+    private String hobby;
+
+    @Column(name = "avg_book_value_read")
+    private Double avgBookValue;
+
+    @Column(name = "avg_bill_value")
+    private Double avgBillValue;
+
+    @Column(name = "min_total_bill")
+    private Integer minBillValue;
 
     public CustomerEntity(){
         this.createdAt = new Date();

@@ -45,7 +45,7 @@ public class UserEntity {
     @Column(name = "url_avatar")
     private String urlAvatar;
 
-    @Column(name = "long_hobbies")
+    @Column(name = "long_hobbies", columnDefinition = "TEXT")
     private String hobby;
 
     @Column(name = "updated_at")
@@ -54,11 +54,15 @@ public class UserEntity {
     @Column(name = "address")
     private String address;
 
+    @Column(name = "province_code")
+    private Integer provinceCode;
+
     @OneToMany(mappedBy = "user")
     private Set<CartEntity> carts;
 
     @OneToMany(mappedBy = "user")
     private Set<BillEntity> bills;
+
 
     public UserEntity(){
         this.createdAt = new Date();
