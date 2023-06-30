@@ -1,3 +1,4 @@
+
 package bk.edu.utils;
 
 import bk.edu.data.model.ConditionInfo;
@@ -7,18 +8,22 @@ import bk.edu.config.*;
 
 import java.util.Date;
 
+import static org.apache.spark.sql.functions.col;
+
 public class TransformUtils {
     public static Dataset<Row> filterCondition(ConditionInfo condition, Dataset<Row> df){
         if(condition.getOperator() == ConditionConfig.OperatorConfig.EQUAL
-            && condition.getType() == ConditionConfig.TypeConfig.DATETIME){
+                && condition.getType() == ConditionConfig.TypeConfig.DATETIME){
             int numYear = Integer.parseInt(condition.getValue());
             Long timeMax = TimeUtils.getYearBefore(numYear);
             Long timeMin = TimeUtils.getYearBefore(numYear + 1);
-            String dateMax ="'" + Config.FORMAT_DATE_SQL.format(new Date(timeMax)) + "'";
-            String dateMin = "'" + Config.FORMAT_DATE_SQL.format(new Date(timeMin)) + "'";
+            String dateMax =  Config.FORMAT_DATE_SQL.format(new Date(timeMax));
+            String dateMin = Config.FORMAT_DATE_SQL.format(new Date(timeMin));
+            System.out.println(condition.getField() + " < " + dateMax);
+            System.out.println(condition.getField() + " < " + dateMin);
             Dataset<Row> finalDf = df
-                .filter(condition.getField() + " < " + dateMax)
-                .filter(condition.getField() + " > " + dateMin);
+                    .filter(col(condition.getField()).$less(dateMax))
+                    .filter(col(condition.getField()).$greater(dateMin));
             return finalDf;
         }
 
@@ -28,59 +33,68 @@ public class TransformUtils {
                 int numYear = Integer.parseInt(condition.getValue());
                 Long datetime = TimeUtils.getYearBefore(numYear);
                 if(condition.getOperator() == ConditionConfig.OperatorConfig.GREATER
-                    || condition.getOperator() == ConditionConfig.OperatorConfig.LESS_AND_EQUAL){
+                        || condition.getOperator() == ConditionConfig.OperatorConfig.LESS_AND_EQUAL){
                     datetime = TimeUtils.getYearBefore(numYear + 1);
                 }
-                value ="'" + Config.FORMAT_DATE_SQL.format(new Date(datetime)) + "'";
+                value =Config.FORMAT_DATE_SQL.format(new Date(datetime));
                 break;
             case ConditionConfig.TypeConfig.STRING:
-                value = "'" + condition.getValue() + "'";
+                value =  condition.getValue();
                 break;
             default:
                 break;
         }
-        String expression = condition.getField();
+        System.out.println("Value: " + value);
+        String field = condition.getField();
         switch (condition.getOperator()){
             case ConditionConfig.OperatorConfig.EQUAL:
-                expression = expression + " = ";
-                break;
+                return df.filter(col(field).$eq$eq$eq(value));
+
             case ConditionConfig.OperatorConfig.GREATER:
                 if(condition.getType() == ConditionConfig.TypeConfig.DATETIME){
-                    expression = expression + " < ";
+                    return df.filter(col(field).$less(value));
                 } else {
-                    expression = expression + " > ";
+                    return  df.filter(col(field).$greater(value));
                 }
-                break;
+
             case ConditionConfig.OperatorConfig.LESS:
                 if(condition.getType() == ConditionConfig.TypeConfig.DATETIME){
-                    expression = expression + " > ";
+                    return df.filter(col(field).$greater(value));
+
                 } else {
-                    expression = expression + " < ";
+                    return df.filter(col(field).$less(value));
                 }
-                break;
+
             case ConditionConfig.OperatorConfig.GREATER_AND_EQUAL:
                 if(condition.getType() == ConditionConfig.TypeConfig.DATETIME){
-                    expression = expression + " <= ";
+                    return df.filter(col(field).$less$eq(value));
                 } else {
-                    expression = expression + " >= ";
+                    return df.filter(col(field).$greater$eq(value));
                 }
-                break;
+
             case ConditionConfig.OperatorConfig.LESS_AND_EQUAL:
                 if(condition.getType() == ConditionConfig.TypeConfig.DATETIME){
-                    expression = expression + " >= ";
+                    return df.filter(col(field).$greater$eq(value));
                 } else {
-                    expression = expression + " <= ";
+                    return df.filter(col(field).$less$eq(value));
                 }
-                break;
-            case ConditionConfig.OperatorConfig.CONTAIN:
-                value = "'%" + condition.getValue() + "%'";
-                expression = expression + " like ";
-                break;
-        }
-        expression = expression + value;
 
-        System.out.println(expression);
-        Dataset<Row> filterDf = df.filter(expression);
-        return filterDf;
+            case ConditionConfig.OperatorConfig.CONTAIN:
+                return df.filter(col(field).contains(value));
+
+
+            case  ConditionConfig.OperatorConfig.NOT_EQUAL:
+                if(condition.getType() == ConditionConfig.TypeConfig.DATETIME){
+                    int numYear = Integer.parseInt(condition.getValue());
+                    Long timeMax = TimeUtils.getYearBefore(numYear);
+                    Long timeMin = TimeUtils.getYearBefore(numYear + 1);
+                    String dateMax =  Config.FORMAT_DATE_SQL.format(new Date(timeMax));
+                    String dateMin = Config.FORMAT_DATE_SQL.format(new Date(timeMin));
+                    return df.filter(col(field).$greater$eq(dateMax)).union(df.filter(col(field).$less$eq(dateMin)));
+                }else {
+                    return df.filter(col(field).notEqual(value));
+                }
+        }
+        return df.limit(0);
     }
 }

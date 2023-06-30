@@ -12,25 +12,29 @@ public class ConditionConfig {
         public static final int LESS_AND_EQUAL = 5;
         public static final int CONTAIN = 6;
 
+        public  static final int NOT_EQUAL = 7;
+
         public static Map<Integer, String> mapOperatorIdToName;
         public static Map<String, Integer> mapNameToOperatorId;
 
         static {
-            mapOperatorIdToName = new HashMap<>();
+            mapOperatorIdToName = new HashMap();
             mapOperatorIdToName.put(1, "equal");
             mapOperatorIdToName.put(2, "greater");
             mapOperatorIdToName.put(3, "less");
             mapOperatorIdToName.put(4, "greater_equal");
             mapOperatorIdToName.put(5, "less_equal");
             mapOperatorIdToName.put(6, "contain");
+            mapOperatorIdToName.put(7, "not_equal");
 
-            mapNameToOperatorId = new HashMap<>();
+            mapNameToOperatorId = new HashMap();
             mapNameToOperatorId.put("equal", 1);
             mapNameToOperatorId.put("greater", 2);
             mapNameToOperatorId.put("less", 3);
             mapNameToOperatorId.put("greater_equal", 4);
             mapNameToOperatorId.put("less_equal", 5);
             mapNameToOperatorId.put("contain", 6);
+            mapNameToOperatorId.put("not_equal", 7);
         }
     }
 
@@ -47,7 +51,7 @@ public class ConditionConfig {
         public static Map<String, Integer> mapNameToTypeId;
 
         static {
-            mapTypeIdToName = new HashMap<>();
+            mapTypeIdToName = new HashMap();
             mapTypeIdToName.put(1, "integer");
             mapTypeIdToName.put(2, "long");
             mapTypeIdToName.put(3, "float");
@@ -56,7 +60,7 @@ public class ConditionConfig {
             mapTypeIdToName.put(6, "datetime");
             mapTypeIdToName.put(7, "boolean");
 
-            mapNameToTypeId = new HashMap<>();
+            mapNameToTypeId = new HashMap();
             mapNameToTypeId.put("integer", 1);
             mapNameToTypeId.put("long", 2);
             mapNameToTypeId.put("float", 3);
