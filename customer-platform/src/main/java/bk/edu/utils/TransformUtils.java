@@ -83,11 +83,9 @@ public class TransformUtils {
                 }
 
             case ConditionConfig.OperatorConfig.CONTAIN:
-                if(condition.getType() == ConditionConfig.TypeConfig.DATETIME) {
+
                     return df.filter(col(field).contains(" " + value + " "));
-                }else{
-                    return df.filter(col(field).contains(value));
-                }
+                
 
             case  ConditionConfig.OperatorConfig.NOT_EQUAL:
                 if(condition.getType() == ConditionConfig.TypeConfig.DATETIME){
@@ -103,15 +101,10 @@ public class TransformUtils {
 
 
             case ConditionConfig.OperatorConfig.NOT_CONTAIN:
-                if(condition.getType() == ConditionConfig.TypeConfig.DATETIME) {
                     return df.withColumn("is_contain", when(col(field).contains(" " + value + " "), lit (1)).otherwise(lit(0)))
                             .filter(col("is_contain").$eq$eq$eq(0))
                             .drop("is_contain");
-                }else{
-                    return df.withColumn("is_contain",  when(col(field).contains(value), lit (1)).otherwise(lit(0)))
-                            .filter(col("is_contain").$eq$eq$eq(0))
-                            .drop("is_contain");
-                }
+
         }
         return df.limit(0);
     }
