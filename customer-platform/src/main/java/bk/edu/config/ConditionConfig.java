@@ -13,6 +13,7 @@ public class ConditionConfig {
         public static final int CONTAIN = 6;
 
         public  static final int NOT_EQUAL = 7;
+        public  static final int NOT_CONTAIN = 8;
 
         public static Map<Integer, String> mapOperatorIdToName;
         public static Map<String, Integer> mapNameToOperatorId;
@@ -26,6 +27,7 @@ public class ConditionConfig {
             mapOperatorIdToName.put(5, "less_equal");
             mapOperatorIdToName.put(6, "contain");
             mapOperatorIdToName.put(7, "not_equal");
+            mapOperatorIdToName.put(8, "not_contain");
 
             mapNameToOperatorId = new HashMap();
             mapNameToOperatorId.put("equal", 1);
@@ -35,6 +37,7 @@ public class ConditionConfig {
             mapNameToOperatorId.put("less_equal", 5);
             mapNameToOperatorId.put("contain", 6);
             mapNameToOperatorId.put("not_equal", 7);
+            mapNameToOperatorId.put("not_contain", 8);
         }
     }
 
