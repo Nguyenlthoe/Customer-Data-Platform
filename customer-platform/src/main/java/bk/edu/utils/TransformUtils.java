@@ -83,25 +83,11 @@ public class TransformUtils {
                 }
 
             case ConditionConfig.OperatorConfig.CONTAIN:
-                if(condition.getType() == ConditionConfig.TypeConfig.STRING) {
-                    String[] columnNames = df.columns();
-                    Column[] columnExpressions = new Column[columnNames.length];
-                    for (int i = 0; i < columnNames.length; i++) {
-                        columnExpressions[i] = col(columnNames[i]);
-                    }
-                    return df
-                            .withColumn(field + "_drop", col(field))
-                            .withColumn(field + "_drop", split(col(field + "_drop"), ","))
-                            .withColumn(field + "_drop", explode(col(field + "_drop")))
-                            .withColumn(field + "_drop", trim(col(field + "_drop")))
-                            .groupBy(columnExpressions)
-                            .agg(collect_list(col(field + "_drop")).as(field + "_drop"))
-                            .where(array_contains(col(field + "_drop"), value))
-                            .drop(col(field + "_drop"));
+                if(condition.getType() == ConditionConfig.TypeConfig.DATETIME) {
+                    return df.filter(col(field).contains(" " + value + " "));
                 }else{
                     return df.filter(col(field).contains(value));
                 }
-
 
             case  ConditionConfig.OperatorConfig.NOT_EQUAL:
                 if(condition.getType() == ConditionConfig.TypeConfig.DATETIME){
@@ -117,24 +103,14 @@ public class TransformUtils {
 
 
             case ConditionConfig.OperatorConfig.NOT_CONTAIN:
-                if(condition.getType() == ConditionConfig.TypeConfig.STRING) {
-                    String[] columnNames = df.columns();
-                    Column[] columnExpressions = new Column[columnNames.length];
-                    for (int i = 0; i < columnNames.length; i++) {
-                        columnExpressions[i] = col(columnNames[i]);
-                    }
-                    return df
-                            .except(df
-                                    .withColumn(field + "_drop", col(field))
-                                    .withColumn(field + "_drop", split(col(field + "_drop"), ","))
-                                    .withColumn(field + "_drop", explode(col(field + "_drop")))
-                                    .withColumn(field + "_drop", trim(col(field + "_drop")))
-                                    .groupBy(columnExpressions)
-                                    .agg(collect_list(col(field + "_drop")).as(field + "_drop"))
-                                    .where(array_contains(col(field + "_drop"), value))
-                                    .drop(col(field + "_drop")));
-                }else {
-                    return df.except(df.filter(col(field).contains(value)));
+                if(condition.getType() == ConditionConfig.TypeConfig.DATETIME) {
+                    return df.withColumn("is_contain", when(col(field).contains(" " + value + " "), lit (1)).otherwise(lit(0)))
+                            .filter(col("is_contain").$eq$eq$eq(0))
+                            .drop("is_contain");
+                }else{
+                    return df.withColumn("is_contain",  when(col(field).contains(value), lit (1)).otherwise(lit(0)))
+                            .filter(col("is_contain").$eq$eq$eq(0))
+                            .drop("is_contain");
                 }
         }
         return df.limit(0);
