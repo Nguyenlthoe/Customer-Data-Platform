@@ -2,13 +2,16 @@
 package bk.edu.utils;
 
 import bk.edu.data.model.ConditionInfo;
+import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import bk.edu.config.*;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
-import static org.apache.spark.sql.functions.col;
+import static org.apache.spark.sql.functions.*;
 
 public class TransformUtils {
     public static Dataset<Row> filterCondition(ConditionInfo condition, Dataset<Row> df){
@@ -80,7 +83,24 @@ public class TransformUtils {
                 }
 
             case ConditionConfig.OperatorConfig.CONTAIN:
-                return df.filter(col(field).contains(value));
+                if(condition.getType() == ConditionConfig.TypeConfig.STRING) {
+                    String[] columnNames = df.columns();
+                    Column[] columnExpressions = new Column[columnNames.length];
+                    for (int i = 0; i < columnNames.length; i++) {
+                        columnExpressions[i] = col(columnNames[i]);
+                    }
+                    return df
+                            .withColumn(field + "_drop", col(field))
+                            .withColumn(field + "_drop", split(col(field + "_drop"), ","))
+                            .withColumn(field + "_drop", explode(col(field + "_drop")))
+                            .withColumn(field + "_drop", trim(col(field + "_drop")))
+                            .groupBy(columnExpressions)
+                            .agg(collect_list(col(field + "_drop")).as(field + "_drop"))
+                            .where(array_contains(col(field + "_drop"), value))
+                            .drop(col(field + "_drop"));
+                }else{
+                    return df.filter(col(field).contains(value));
+                }
 
 
             case  ConditionConfig.OperatorConfig.NOT_EQUAL:
@@ -93,6 +113,28 @@ public class TransformUtils {
                     return df.filter(col(field).$greater$eq(dateMax)).union(df.filter(col(field).$less$eq(dateMin)));
                 }else {
                     return df.filter(col(field).notEqual(value));
+                }
+
+
+            case ConditionConfig.OperatorConfig.NOT_CONTAIN:
+                if(condition.getType() == ConditionConfig.TypeConfig.STRING) {
+                    String[] columnNames = df.columns();
+                    Column[] columnExpressions = new Column[columnNames.length];
+                    for (int i = 0; i < columnNames.length; i++) {
+                        columnExpressions[i] = col(columnNames[i]);
+                    }
+                    return df
+                            .except(df
+                                    .withColumn(field + "_drop", col(field))
+                                    .withColumn(field + "_drop", split(col(field + "_drop"), ","))
+                                    .withColumn(field + "_drop", explode(col(field + "_drop")))
+                                    .withColumn(field + "_drop", trim(col(field + "_drop")))
+                                    .groupBy(columnExpressions)
+                                    .agg(collect_list(col(field + "_drop")).as(field + "_drop"))
+                                    .where(array_contains(col(field + "_drop"), value))
+                                    .drop(col(field + "_drop")));
+                }else {
+                    return df.except(df.filter(col(field).contains(value)));
                 }
         }
         return df.limit(0);
