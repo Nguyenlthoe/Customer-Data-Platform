@@ -1,0 +1,2 @@
+export const operators = ["equal", "greater", "less", "greater_equal", "less_equal", "contain", "not_equal"]
+export const types = ["integer", "long", "float", "timestamp", "string", "datetime", "boolean"]
