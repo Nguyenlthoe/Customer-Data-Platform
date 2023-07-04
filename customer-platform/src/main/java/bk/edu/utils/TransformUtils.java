@@ -7,6 +7,8 @@ import bk.edu.config.*;
 
 import java.util.Date;
 
+import static org.apache.spark.sql.functions.col;
+
 public class TransformUtils {
     public static Dataset<Row> filterCondition(ConditionInfo condition, Dataset<Row> df){
         if(condition.getOperator() == ConditionConfig.OperatorConfig.EQUAL
@@ -80,7 +82,7 @@ public class TransformUtils {
         expression = expression + value;
 
         System.out.println(expression);
-        Dataset<Row> filterDf = df.filter(expression);
+        Dataset<Row> filterDf = df.filter(col("cc").equalTo(7));
         return filterDf;
     }
 }
