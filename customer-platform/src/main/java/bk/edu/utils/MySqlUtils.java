@@ -106,7 +106,7 @@ public class MySqlUtils {
     }
 
     public void insertCustomerBookAvg(int userId, int count, int sum){
-        String sql = "UPDATE `customer-data-platform`.`bookshop_customer` SET `total_book_read` = ? , `avg_book_value_read` = ? , `total_book_value_read` = ? WHERE (`user_id` = ? );\n";
+        String sql = "UPDATE `customer-data-platform`.`bookshop_customer` SET `total_book_view` = ? , `avg_book_value_view` = ? , `total_book_value_view` = ? WHERE (`user_id` = ? );\n";
         try {
             PreparedStatement preparedStatement = mysqlConnection.prepareStatement(sql);
             preparedStatement.setInt(1, count);

@@ -13,6 +13,8 @@ import java.util.List;
 
 import static org.apache.spark.sql.functions.*;
 
+import static org.apache.spark.sql.functions.col;
+
 public class TransformUtils {
     public static Dataset<Row> filterCondition(ConditionInfo condition, Dataset<Row> df){
         if(condition.getOperator() == ConditionConfig.OperatorConfig.EQUAL
@@ -83,7 +85,6 @@ public class TransformUtils {
                 }
 
             case ConditionConfig.OperatorConfig.CONTAIN:
-
                     return df.filter(col(field).contains(" " + value + " "));
                 
 
@@ -106,6 +107,6 @@ public class TransformUtils {
                             .drop("is_contain");
 
         }
-        return df.limit(0);
+        return df;
     }
 }

@@ -1,0 +1,152 @@
+.container {
+    max-width: auto;
+}
+.flexbox_center {
+    display: flex;
+    justify-content: center;
+}
+.flexbox_spacearound {
+    display: flex;
+    justify-self: unset;
+    width: 100%;
+    margin-top: 20px;
+}
+.label_option {
+    width: 250px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.flexbox_horizol {
+    display: flex;
+    justify-content: space-evenly;
+    text-align: center;
+    align-items: center
+}
+.item-book {
+    width: 20%;
+}
+.item-book15 {
+    margin: 0px 40px 0px 20px !important;
+    width: 80%;
+}
+.label_input {
+    width: 20%;
+    margin-top: 8px;
+    text-align:justify;
+}
+.flex_inline {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.container_custom {
+    margin: auto;
+    width: 100%;
+    height: fit-content;
+}
+.flex_3 {
+    flex: 3;
+}
+.flex_4 {
+    flex: 4;
+}
+.flex_column {
+    display: flex;
+    flex-direction: column;
+}
+.margin_top20 {
+    margin-top: 20px !important;
+}
+.margin_left20 {
+    margin-left: 20px !important;
+}
+.description {
+    height: 300px;
+    text-align: start left;
+}
+
+select {
+    width: 100%;
+    border: none;
+    height: 30px;
+    border-radius: 4px;
+    background-color: rgb(240, 234, 234);
+    padding: 1px 2px;
+    color: rgb(39, 121, 19);
+    font-size: large;
+}
+input[type=text],input[type=number] {
+    border: 1px solid red;
+}
+form {
+    border: 2px solid #16f5f2;
+}
+textarea {
+    border: 1px solid red;
+}
+.btn {
+    color: white !important;
+    background-color: #ff4939 !important;
+    width: 200px;
+    height: 50px;
+    margin: auto;
+}
+
+.btn_height30 {
+    height: 30px !important;
+    border: black 2px !important;
+    border-radius: 4px;
+    margin: auto;
+    background-color: rgb(39, 121, 19) !important;
+    padding: 1px 2px;
+}
+.image_preview {
+    margin: auto;
+    max-width: 70%;
+    max-height: 450px;
+}
+.item_flex3 {
+    flex:3;
+}
+.item_flex7 {
+    flex:7;
+}
+.tab {
+    width: 20%;
+    min-width: 200px;
+}
+.flex_column {
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+}
+.item_tab {
+    display: flex;
+    width: 100%;
+    height: 50px;
+    justify-content: center;
+}
+.tab_label {
+    font-size: 18px;
+    margin: auto;
+}
+.separate {
+    margin-top: 0 !important;
+}
+.list_book {
+    flex: 1;
+    border-radius: 5px;
+    padding: 10px;
+    border: 2px solid rgb(255, 213, 0);
+}
+
+.title_1{
+    font-size: 30px;
+    margin: auto;
+}
+
+.title_input {
+    width: 50em;
+    height: 30px;
+}
