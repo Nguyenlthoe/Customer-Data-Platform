@@ -24,12 +24,12 @@ public class UpdateLongHobby implements Serializable {
     }
 
     public void process(){
-        SparkUtils sparkUtil = new SparkUtils("update long hobby", false, true);
-
+        SparkUtils sparkUtil = new SparkUtils("update long hobby", true, true);
+        System.out.println("Start updating long hobbies");
         Dataset<Row> df = sparkUtil.getTableDataframe("bookshop_customer");
-        df.printSchema();
+        //df.printSchema();
         df = df.filter(col("updated_at").$greater(new Timestamp(TimeUtils.getDayBefore(1))));
-        df.show();
+        df.select("user_id", "email", "name").show();
         df.foreachPartition((ForeachPartitionFunction<Row>) t -> {
             MySqlUtils mySqlUtils = new MySqlUtils();
             ElasticUtils elasticUtils = new ElasticUtils();
@@ -43,7 +43,7 @@ public class UpdateLongHobby implements Serializable {
             elasticUtils.close();
             mySqlUtils.close();
         });
-        System.out.println(df.count());
+        System.out.println("Number user long hobbies updated: " + df.count());
     }
 
 }

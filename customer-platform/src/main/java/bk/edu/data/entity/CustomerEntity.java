@@ -38,6 +38,9 @@ public class CustomerEntity {
     @Column(name = "birthday")
     private Date birthday;
 
+    @Column(name = "province_code")
+    private Integer provinceCode;
+
     @Column(name = "url_avatar")
     private String urlAvatar;
 
@@ -50,7 +53,10 @@ public class CustomerEntity {
     @Column(name = "long_hobbies", columnDefinition = "TEXT")
     private String hobby;
 
-    @Column(name = "avg_book_value_read")
+    @Column(name = "short_hobbies", columnDefinition = "TEXT")
+    private String shortHobby;
+
+    @Column(name = "avg_book_value_view")
     private Double avgBookValue;
 
     @Column(name = "avg_bill_value")
@@ -58,6 +64,9 @@ public class CustomerEntity {
 
     @Column(name = "min_total_bill")
     private Integer minBillValue;
+
+    @Column(name = "total_book_view")
+    private Integer totalBookView;
 
     public CustomerEntity(){
         this.createdAt = new Date();

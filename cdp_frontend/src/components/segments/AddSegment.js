@@ -23,7 +23,16 @@ export function AddSegment(){
 
     function handleRemoveCondition(index) {
         let cp = conditions.slice();
-        cp.splice(index, 1);
+        let item = null
+        cp.forEach((condition) => {
+            if(condition.id == index){
+                item = condition
+            }
+        })
+        const indexR = cp.indexOf(item)
+        console.log(cp)
+        cp.splice(indexR, 1);
+        console.log(cp)
         setConditions(cp)
     }
 
@@ -47,7 +56,7 @@ export function AddSegment(){
             }
         }
 
-        const url = API.DOMAIN + API.ADD_SEGMENT;
+        const url = API.DOMAIN + API.SEGMENT;
         fetch(url, {
             method: 'POST',
             headers: {
@@ -70,6 +79,7 @@ export function AddSegment(){
                     alert("Tạo mới phân khúc thành công");
                 } else {
                     alert("Tạo mới thất bại")
+                    window.location.href = "/admin/segments"
                     console.log(data)
                 }
             })

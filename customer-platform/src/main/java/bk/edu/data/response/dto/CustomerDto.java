@@ -24,25 +24,33 @@ public class CustomerDto {
 
     private String urlAvatar;
 
-    private List<RelationDto> hobbies;
+    private String hobbies;
 
-    private Double avgBookValue;
+    private String shortHobbies;
 
-    private Double avgBillValue;
+    private Integer avgBookValue;
+
+    private Integer avgBillValue;
 
     private Integer minBillValue;
 
+    private Integer totalBookView;
+
+    private String province;
+
     public CustomerDto(Integer userId, String name, String email, String phoneNumber,
                        Integer gender, String urlAvatar,
-                       Double avgBookValue, Double avgBillValue, Integer minBillValue) {
+                       Double avgBookValue, Double avgBillValue, Integer minBillValue, Integer totalBookView, String province) {
         this.userId = userId;
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.gender = gender;
         this.urlAvatar = urlAvatar;
-        this.avgBookValue = avgBookValue;
-        this.avgBillValue = avgBillValue;
+        this.avgBookValue = (int)((double) avgBookValue);
+        this.avgBillValue = (int)((double) avgBillValue);
         this.minBillValue = minBillValue;
+        this.totalBookView = totalBookView;
+        this.province = province;
     }
 }

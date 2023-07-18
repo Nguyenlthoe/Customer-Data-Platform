@@ -24,7 +24,7 @@ public class Config {
         static {
             KAFKA_PARAM = new HashMap<>();
 
-            KAFKA_PARAM.put("bootstrap.servers", "20.196.248.69:9092,20.196.245.32:9092");
+            KAFKA_PARAM.put("bootstrap.servers", "172.25.0.31:9092,172.25.0.30:9092");
             KAFKA_PARAM.put("key.deserializer", StringDeserializer.class);
             KAFKA_PARAM.put("value.deserializer", StringDeserializer.class);
             KAFKA_PARAM.put("group.id", "handle_event" + System.currentTimeMillis());
@@ -42,13 +42,13 @@ public class Config {
 
         public static String PASSWORD = "package1107N";
 
-        public static String HOST = "20.196.248.69:3306";
+        public static String HOST = "172.25.0.1:3306";
 
         public static String DBNAME = "customer-data-platform";
     }
 
     public static class ELASTIC {
-        public static final String[] HOSTS = {"20.196.245.32"};
+        public static final String[] HOSTS = {"172.25.0.1"};
 
         public static final String PORT = "9200";
 

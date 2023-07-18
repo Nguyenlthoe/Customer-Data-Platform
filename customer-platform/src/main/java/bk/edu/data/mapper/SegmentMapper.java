@@ -5,10 +5,14 @@ import bk.edu.data.entity.SegmentEntity;
 import bk.edu.data.model.ConditionInfo;
 import bk.edu.data.request.ConditionRequest;
 import bk.edu.data.request.SegmentRequest;
+import bk.edu.data.response.dto.SegmentDto;
 import bk.edu.exception.RequestInvalid;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,5 +51,28 @@ public class SegmentMapper {
             conditionInfoList.add(conditionRequestToInfo(condition));
         });
         return conditionInfoList;
+    }
+
+    public SegmentDto segmentEntityToDto(SegmentEntity segmentEntity){
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            List<ConditionInfo> conditions = objectMapper.readValue(segmentEntity.getRule(),
+                    new TypeReference<List<ConditionInfo>>(){});
+            return new SegmentDto(segmentEntity.getSegmentId(), segmentEntity.getName(),
+                    conditions, format.format(segmentEntity.getCreatedAt()),
+                    format.format(segmentEntity.getUpdatedAt()));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<SegmentDto> listSegmentEntityToDto(List<SegmentEntity> segmentEntities){
+        List<SegmentDto> segments = new ArrayList<>();
+        segmentEntities.forEach(segmentEntity -> {
+            segments.add(segmentEntityToDto(segmentEntity));
+        });
+        return segments;
     }
 }

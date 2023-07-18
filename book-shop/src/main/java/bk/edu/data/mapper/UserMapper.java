@@ -29,7 +29,9 @@ public class UserMapper {
         }
         String address = "";
         if(userEntity.getProvinceCode() != null){
-            address = ProvinceCode.provinceName[userEntity.getProvinceCode()];
+            if(ProvinceCode.provinceCodeList.contains(userEntity.getProvinceCode())){
+                address = ProvinceCode.provinceName[ProvinceCode.provinceCodeList.indexOf(userEntity.getProvinceCode())];
+            }
         }
         return new UserDto(userEntity.getUserId(), userEntity.getName(),
                 userEntity.getEmail(), userEntity.getPhoneNumber(),

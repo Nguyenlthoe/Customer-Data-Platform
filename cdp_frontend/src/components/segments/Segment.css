@@ -101,6 +101,27 @@ textarea {
     background-color: rgb(39, 121, 19) !important;
     padding: 1px 2px;
 }
+.space_50 {
+    display: block;
+    height: 50px;
+}
+
+.space_20 {
+    display: block;
+    height: 20px;
+}
+
+.left_content {
+    display:list-item;
+    justify-self: start;
+    text-align: left;
+    align-items:flex-start;
+}
+
+.btn_green {
+    width: 70px;
+    background-color: rgb(98, 203, 235) !important;
+}
 .image_preview {
     margin: auto;
     max-width: 70%;
@@ -115,6 +136,14 @@ textarea {
 .tab {
     width: 20%;
     min-width: 200px;
+}
+.my_table {
+    width: 100%;
+}
+
+tr td:last-child {
+    width: 1%;
+    white-space: nowrap;
 }
 .flex_column {
     height: fit-content;
@@ -132,6 +161,10 @@ textarea {
     margin: auto;
 }
 .separate {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: rgb(33, 218, 27);
     margin-top: 0 !important;
 }
 .list_book {
@@ -146,7 +179,16 @@ textarea {
     margin: auto;
 }
 
+.title_2{
+    font-size: 20px;
+    margin: auto;
+}
+
 .title_input {
     width: 50em;
     height: 30px;
+}
+
+.margin_top20 {
+    margin-top: 20px !important;
 }
