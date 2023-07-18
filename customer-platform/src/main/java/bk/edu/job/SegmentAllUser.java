@@ -28,14 +28,18 @@ public class SegmentAllUser implements Serializable {
     }
     public static void main(String args[]){
         SegmentAllUser segmentAllUser = new SegmentAllUser();
+        boolean log = true;
+        if(args[1].equals("false")){
+            log = false;
+        }
         if(args[0].equals("all")){
-            SparkUtils sparkUtil = new SparkUtils("segment all user", true, true);
+            SparkUtils sparkUtil = new SparkUtils("segment all user", log, true);
             segmentAllUser.process(sparkUtil, true);
         } else if (args[0].equals("new")) {
-            SparkUtils sparkUtil = new SparkUtils("segment new segment", true, true);
+            SparkUtils sparkUtil = new SparkUtils("segment new, update segment", log, true);
             segmentAllUser.processNewSegment(sparkUtil);
         } else {
-            SparkUtils sparkUtil = new SparkUtils("segment user updated", true, true);
+            SparkUtils sparkUtil = new SparkUtils("segment user updated", log, true);
             segmentAllUser.process(sparkUtil,false);
         }
     }
@@ -52,7 +56,7 @@ public class SegmentAllUser implements Serializable {
 
         finalDf.persist(StorageLevel.MEMORY_ONLY());
         segments.forEach(segmentInfo -> {
-            System.out.println(segmentInfo.getSegmentId());
+            System.out.println("Process segment id : " + segmentInfo.getSegmentId());
             linkSegmentAndUser(segmentInfo, finalDf);
         });
 
@@ -162,7 +166,7 @@ public class SegmentAllUser implements Serializable {
                 filterDf = TransformUtils.filterCondition(conditions.get(i), filterDf);
             }
         }
-        filterDf.show();
+        filterDf.select("user_id", "gender", "short_hobbies", "long_hobbies", "birthday", "email").show();
         updateAssociation(segmentInfo.getSegmentId(), filterDf);
     }
 

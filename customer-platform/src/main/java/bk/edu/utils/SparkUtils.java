@@ -42,9 +42,9 @@ public class SparkUtils implements Serializable{
     }
 
     public SparkSession createSparkConfig(String nameJob, boolean log, boolean master) {
+        Logger.getLogger("org").setLevel(Level.OFF);
         if (!log) {
             System.out.println("run with disable log");
-            Logger.getLogger("org").setLevel(Level.OFF);
             Logger.getLogger("akka").setLevel(Level.OFF);
         }
         if (master) {

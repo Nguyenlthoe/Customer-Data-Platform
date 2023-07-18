@@ -10,9 +10,14 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.ForeachPartitionFunction;
+import org.apache.spark.api.java.function.MapPartitionsFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
+import org.apache.spark.sql.catalyst.encoders.RowEncoder;
+import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.StructField;
+import org.apache.spark.sql.types.StructType;
 import org.apache.spark.streaming.api.java.JavaInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.kafka010.ConsumerStrategies;
@@ -23,18 +28,21 @@ import org.json.JSONObject;
 import org.springframework.jmx.export.naming.IdentityNamingStrategy;
 import scala.Serializable;
 import scala.Tuple2;
-
+import static org.apache.spark.sql.functions.col;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.function.Consumer;
 
 public class HandleEventStreaming {
+    private StructType structType = new StructType(new StructField[]{
+            new StructField("user_id", DataTypes.IntegerType, true, null)
+    });
 
     private SparkUtils sparkUtils;
 
-    public HandleEventStreaming(boolean log) {
-        this.sparkUtils = new SparkUtils("streaming", log, true);
+    public HandleEventStreaming(boolean log, String name) {
+        this.sparkUtils = new SparkUtils("streaming: " + name, log, true);
     }
 
     public static void main(String[] args) {
@@ -43,8 +51,8 @@ public class HandleEventStreaming {
             if(args[0].equals("true")){
                 log = true;
             }
-            HandleEventStreaming matching = new HandleEventStreaming(log);
-            matching.run(); // streaming can throw exception
+            HandleEventStreaming matching = new HandleEventStreaming(log, args[2]);
+            matching.run(args[1]); // streaming can throw exception
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -79,7 +87,8 @@ public class HandleEventStreaming {
         } catch (Exception e) {
             myEvent.setEvent("page_view");
         }
-        if (myEvent.getEvent().toString().contains("view") && myEvent.getEvent_name().equals("product_action")) {
+        if (!myEvent.getEvent().toString().contains("purchase")
+                && myEvent.getEvent_name().equals("product_action")) {
             for (int i = 0; i < data.length(); i++) {
 
                 try {
@@ -90,9 +99,11 @@ public class HandleEventStreaming {
                                 databook.getInt("publisher_id"), databook.getInt("author_id"), databook.getInt("price"));
                         break;
                     }
-                } catch (Exception e) {
-
+                } catch (Exception ignore) {
                 }
+            }
+            if(myEvent.getBook_id() == null){
+                myEvent = null;
             }
         } else {
             myEvent = null;
@@ -101,26 +112,13 @@ public class HandleEventStreaming {
         return myEvent;
     }
 
-    public void run() throws InterruptedException {
-        JavaStreamingContext javaStreamingContext = sparkUtils.javaStreamingContext;
-        JavaInputDStream<ConsumerRecord<Objects, Objects>> stream =
-                KafkaUtils.createDirectStream(
-                        sparkUtils.javaStreamingContext,
-                        LocationStrategies.PreferConsistent(),
-                        ConsumerStrategies.Subscribe(Config.KAFKA.TOPIC, Config.KAFKA.KAFKA_PARAM));
-        stream.foreachRDD((consumerRecordJavaRDD, time) -> {
-            JavaRDD<MyEvent> rows = consumerRecordJavaRDD
-                    .map(consumerRecord -> RowFactory.create(consumerRecord.value(), consumerRecord.topic()))
-                    .map(HandleEventStreaming::transformRow)
-                    .filter(Objects::nonNull);
-            Dataset<Row> df = sparkUtils.session.createDataFrame(rows, MyEvent.class);
-
-        df.show();
-        //df.printSchema();
-        //System.out.println(df.count());
-        Dataset<Row> bookCustomerDf = df.select("user_id", "book_id").distinct();
-        bookCustomerDf.foreachPartition((ForeachPartitionFunction<Row>) t -> {
+    public void handleEventView(Dataset<Row> df){
+        Dataset<Row> bookCustomerDf = df
+                .filter(col("event").like("%view%"))
+                .select("user_id", "book_id").distinct();
+        Dataset<Row> customerUpdateDf = bookCustomerDf.mapPartitions((MapPartitionsFunction<Row, Row>) t -> {
             MySqlUtils mySqlUtils = new MySqlUtils();
+            List<Row> rows = new ArrayList<>();
             while (t.hasNext()){
                 Row row = t.next();
                 try {
@@ -128,15 +126,31 @@ public class HandleEventStreaming {
                     int bookId = row.getInt(1);
                     if(!mySqlUtils.checkExistCustomerBook(userId, bookId)){
                         mySqlUtils.insertCustomerBook(userId, bookId);
-                        mySqlUtils.updateBookRead(userId);
+
+                        rows.add(RowFactory.create(userId));
+                        System.out.println(String.format("Insert new (userId, bookId): (%d, %d)",
+                                userId, bookId));
                     }
                 } catch (Exception ignore){
-
                 }
             }
             mySqlUtils.close();
+            return rows.iterator();
+        }, RowEncoder.apply(structType));
+
+        customerUpdateDf.foreachPartition((ForeachPartitionFunction<Row>) t -> {
+            MySqlUtils mySqlUtils = new MySqlUtils();
+            while (t.hasNext()){
+                Row row = t.next();
+                int userId = row.getInt(0);
+                mySqlUtils.updateBookRead(userId);
+            }
+            mySqlUtils.close();
         });
-        System.out.println(bookCustomerDf.count());
+        System.out.println("Number user view updated: " + customerUpdateDf.count());
+    }
+
+    public void handleUpdateShortHobbies(Dataset<Row> df){
         Dataset<Row> categoryCustomerDf = df.select("user_id", "category_id").distinct();
         categoryCustomerDf.foreachPartition((ForeachPartitionFunction<Row>) t -> {
             MySqlUtils mySqlUtils = new MySqlUtils();
@@ -170,50 +184,32 @@ public class HandleEventStreaming {
             }
             mySqlUtils.close();
         });
-        System.out.println("Số lượng user có cập nhật" + customerDf.count());
-//            Dataset<Row> df = sparkUtils.session.createDataFrame(rows, EventKafka.class);
-//            Dataset<Row> dfFinal = df.select("collector_tstamp", "event", "event_id", "event_name", "contexts", "unstruct_event", "user_id", "domain_userid");
-//            dfFinal.show();
+        System.out.println("Number user short_hobbies has updated :" + customerDf.count());
+    }
+    public void run(String option) throws InterruptedException {
+        JavaStreamingContext javaStreamingContext = sparkUtils.javaStreamingContext;
+        JavaInputDStream<ConsumerRecord<Objects, Objects>> stream =
+                KafkaUtils.createDirectStream(
+                        sparkUtils.javaStreamingContext,
+                        LocationStrategies.PreferConsistent(),
+                        ConsumerStrategies.Subscribe(Config.KAFKA.TOPIC, Config.KAFKA.KAFKA_PARAM));
+        stream.foreachRDD((consumerRecordJavaRDD, time) -> {
+            JavaRDD<MyEvent> rows = consumerRecordJavaRDD
+                    .map(consumerRecord -> RowFactory.create(consumerRecord.value(), consumerRecord.topic()))
+                    .map(HandleEventStreaming::transformRow)
+                    .filter(Objects::nonNull);
+            Dataset<Row> df = sparkUtils.session.createDataFrame(rows, MyEvent.class);
+            df.persist();
+            if(option.equals("view")){
+                handleEventView(df);
+            } else if (option.equals("hobby")){
+                handleUpdateShortHobbies(df);
+            }
+            df.show();
+            df.unpersist();
         });
 
         javaStreamingContext.start();
         javaStreamingContext.awaitTermination();
     }
-
-    public static MyEvent transformEvent(EventKafka eventKafka) {
-        MyEvent myEvent = new MyEvent();
-        myEvent.setEvent_name(eventKafka.getEvent_name());
-        myEvent.setEvent_id(eventKafka.getEvent_id());
-        myEvent.setCollector_tstamp(eventKafka.getCollector_tstamp());
-        myEvent.setUser_id(eventKafka.getUser_id());
-        myEvent.setDomain_userid(eventKafka.getDomain_userid());
-        JSONArray data = eventKafka.getContexts().getJSONArray("data");
-        try {
-            myEvent.setEvent(eventKafka.getUnstruct_event().getJSONObject("data").getString("data"));
-        } catch (Exception e) {
-            myEvent.setEvent("page_view");
-        }
-        if (myEvent.getEvent().equals("view")) {
-            for (int i = 0; i < data.length(); i++) {
-
-                try {
-                    JSONObject jsonObject = data.getJSONObject(i);
-                    if (jsonObject.getString("schema").equals("iglu:com.bookshop/product_context/jsonschema/1-0-0")) {
-                        JSONObject databook = jsonObject.getJSONObject("data");
-                        myEvent.setBook(databook.getInt("product_id"), databook.getInt("category_id"),
-                                databook.getInt("publisher_id"), databook.getInt("author_id"), databook.getInt("price"));
-                        break;
-                    }
-                } catch (Exception e) {
-
-                }
-            }
-        } else {
-            myEvent.setBook(-1, -1, -1, -1, -1);
-        }
-
-        return myEvent;
-    }
-
-    ;
 }

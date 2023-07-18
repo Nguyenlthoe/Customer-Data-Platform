@@ -1,11 +1,13 @@
 package bk.edu.data.response.dto;
 
 import bk.edu.data.entity.AdminEntity;
+import bk.edu.data.model.ConditionInfo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,11 +18,9 @@ public class SegmentDto {
 
     private String name;
 
-    private String rule;
+    private List<ConditionInfo> conditions;
 
-    private AdminEntity admin;
+    private String createdAt;
 
-    private Date createdAt;
-
-    private Date updatedAt;
+    private String updatedAt;
 }

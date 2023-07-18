@@ -26,7 +26,7 @@ public class MyEvent implements Serializable {
 
     private String event;
 
-    private int book_id;
+    private Integer book_id;
 
     private int category_id;
 

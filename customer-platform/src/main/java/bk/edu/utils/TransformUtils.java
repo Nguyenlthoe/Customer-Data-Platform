@@ -49,8 +49,10 @@ public class TransformUtils {
             default:
                 break;
         }
-        System.out.println("Value: " + value);
         String field = condition.getField();
+
+        System.out.println("Field: " + field);
+        System.out.println("Value: " + value);
         switch (condition.getOperator()){
             case ConditionConfig.OperatorConfig.EQUAL:
                 return df.filter(col(field).$eq$eq$eq(value));
