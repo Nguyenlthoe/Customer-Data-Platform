@@ -34,20 +34,19 @@ export function CustomerDetail() {
                 customer == undefined ? (<></>) :
                     (<>
 
-                        <div className="wrapper">
-                            <div className="left">
+                        <div className="wrapper rounded-lg shadow-lg text-base">
+                            <div className="left flex flex-col items-center justify-start space-y-8">
                                 {
                                     customer.gender == 1 ? (<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7Mt-bw3ab6MmhmZ1ruSICOUPn2atHBmhmJHYTx7Cy3hIhsCKTSWLMh_XdrhFUjo3CN9U&usqp=CAU" alt="user" width="400"></img>) 
                                     : (<img src="https://img.freepik.com/premium-vector/young-woman-face-cartoon_18591-44461.jpg?w=2000" alt="user" width="400"></img>)
                                 }
                                 
-                                <h2>{customer.name}</h2>
+                                <h2 className='text-4xl'>{customer.name}</h2>
                             </div>
-                            <div className="right">
-                                <div className="info">
-                                    <h2>Thông tin cơ bản</h2>
-                                    <div className='space_50'></div>
-                                    <div className="info_data">
+                            <div className="right w-full flex flex-col space-y-16">
+                                <div className="info flex flex-col space-y-8">
+                                    <h2 className='text-4xl w-full bg-slate-100 p-2 shadow-md'>Thông tin cơ bản</h2>
+                                    <div className="info_data text-xl">
                                         <div className="data">
                                             <h3>Email</h3>
                                             <p>{customer.email}</p>
@@ -58,8 +57,7 @@ export function CustomerDetail() {
                                             <p>{customer.phoneNumber}</p>
                                         </div>
                                     </div>
-                                    <div className="space_20"></div>
-                                    <div className="info_data">
+                                    <div className="info_data text-xl">
                                         <div className="data">
                                             <h3>Ngày sinh</h3>
                                             <p>{customer.birthday}</p>
@@ -78,9 +76,8 @@ export function CustomerDetail() {
                                     </div>
                                 </div>
 
-                                <div className="info">
-                                    <h2>Thông tin bổ sung</h2>
-                                    <div className='space_50'></div>
+                                <div className="info text-xl flex flex-col space-y-8">
+                                    <h2 className='text-4xl w-full bg-slate-100 p-2 shadow-md'>Thông tin bổ sung</h2>
                                     <div className="projects_data">
                                         <div className="data">
                                             <h3>Thể loại ưu thích</h3>

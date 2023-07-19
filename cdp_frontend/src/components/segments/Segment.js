@@ -4,6 +4,7 @@ import * as API from './../../constants/api_config'
 import * as CONFIG from './../../constants/config'
 
 import './Segment.css'
+import { Button } from '@mui/material';
 
 var nextPage = false;
 var prevPage = false;
@@ -90,71 +91,69 @@ export function SegmentDetail() {
     }
 
 
-    function handleViewDetail(index){
+    function handleViewDetail(index) {
         window.location.href = "/customer/" + index
     }
 
     return (
         <>
-            <div className='space_50'></div>
-            <div className='overview'>
-                {
-                    segment != undefined ? (
-                    
-                    <div className='overview left_content'>
-                        <label className='title_2 margin_left20 margin_top20'>Tên phân khúc: {segment.name}</label>
-                        <div className='space_20'></div>
-                        <label className='title_2 margin_left20 margin_top20'>Thời gian khởi tạo: {segment.createdAt}</label>
-                        <div className='space_20'></div>
-                        <label className='title_2 margin_left20 margin_top20'>Thời gian cập nhật: {segment.updatedAt}</label>
-                        <div className='space_20'></div>
-                        <label className="title_2 margin_left20 margin_top20">Số  khách hàng trong phân khúc: {total}</label>
-                    </div>
-                    ) : (
-                        <>
-                        </>
-                    )
-                }
-                
+            <div className="m-4 p-4 shadow-lg bg-white rounded-xl flex flex-col items-start justify-start space-y-10">
+                <div className='overview text-3xl'>
+                    {
+                        segment != undefined ? (
+
+                            <div className='overview left_content'>
+                                <label className='title_2 margin_left20 margin_top20'>Tên phân khúc: {segment.name}</label>
+                                <div className='space_20'></div>
+                                <label className='title_2 margin_left20 margin_top20'>Thời gian khởi tạo: {segment.createdAt}</label>
+                                <div className='space_20'></div>
+                                <label className='title_2 margin_left20 margin_top20'>Thời gian cập nhật: {segment.updatedAt}</label>
+                                <div className='space_20'></div>
+                                <label className="title_2 margin_left20 margin_top20">Số  khách hàng trong phân khúc: {total}</label>
+                            </div>
+                        ) : (
+                            <>
+                            </>
+                        )
+                    }
+
+                </div>
             </div>
-            <div className='space_20'></div>
-            <div className="separate"></div>
-            <div className="my_table margin_left20">
-                <table className="">
+            <div className="m-4 p-8 shadow-lg bg-white rounded-xl flex flex-col items-start justify-start space-y-10">
+                <table className="text-xl shadow-lg w-full">
                     <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Tên</th>
-                            <th>Email</th>
-                            <th>Số điện thoại</th>
-                            <th></th>
+                        <tr className='bg-slate-200 w-full border p-2'>
+                            <th className='p-2'>ID</th>
+                            <th className='p-2'>Tên</th>
+                            <th className='p-2'>Email</th>
+                            <th className='p-2'>Số điện thoại</th>
+                            <th className='p-2'></th>
                         </tr>
                     </thead>
 
-                    <tbody>
+                    <tbody className='text-lg'>
                         {
                             customers != undefined ? (
-                            customers.map((customer) => {
-                                return (
-                                    <tr key={customer.customerId}>
-                                        <td style={{ width: '5em' }}>{customer.userId}</td>
-                                        <td style={{ width: '30em' }}>{customer.name}</td>
-                                        <td style={{ width: '30em' }}>  {customer.email}</td>
-                                        <td style={{ width: '30em' }}>{customer.phoneNumber}</td>
-                                        <td style={{ width: '5em' }}><button className="btn btn_green" onClick={() => {handleViewDetail(customer.userId)}}>Chi tiết</button></td>
-                                    </tr>
-                                )
-                            }) ) : (<></>)
+                                customers.map((customer) => {
+                                    return (
+                                        <tr key={customer.customerId} className='border hover:bg-slate-50 !h-[120px] overflow-auto'>
+                                            <td className='p-2 min-h-[200px] border' style={{ width: '5em' }}>{customer.userId}</td>
+                                            <td className='p-2 min-h-[200px] border' style={{ width: '30em' }}>{customer.name}</td>
+                                            <td className='p-2 min-h-[200px] border' style={{ width: '30em' }}>  {customer.email}</td>
+                                            <td className='p-2 min-h-[200px] border' style={{ width: '30em' }}>{customer.phoneNumber}</td>
+                                            <td className='p-2 min-h-[200px] border' style={{ width: '5em' }}><Button variant='outlined' className="" onClick={() => { handleViewDetail(customer.userId) }}>Chi tiết</Button></td>
+                                        </tr>
+                                    )
+                                })) : (<></>)
                         }
                     </tbody>
                 </table>
-            </div>
-            <div className="separate"></div>
-            <div className='page'>
-                {(prevPage && <button className="btn" onClick={handlePrev}>Trang trước</button>)
-                    || <button disabled className="btn" onClick={handlePrev}>Trang trước</button>}
-                {(nextPage && <button className="btn" onClick={handleNext}>Trang sau</button>)
-                    || <button disabled className="btn" onClick={handleNext}>Trang sau</button>}
+                <div className='flex w-full items-center justify-center space-x-2'>
+                    {(prevPage && <Button variant='contained' className="w-36" onClick={handlePrev}>Trang trước</Button>)
+                        || <Button variant='contained' disabled className="w-36" onClick={handlePrev}>Trang trước</Button>}
+                    {(nextPage && <Button variant='contained' className="w-36" onClick={handleNext}>Trang sau</Button>)
+                        || <Button variant='contained' disabled className="w-36" onClick={handleNext}>Trang sau</Button>}
+                </div>
             </div>
         </>
     )
