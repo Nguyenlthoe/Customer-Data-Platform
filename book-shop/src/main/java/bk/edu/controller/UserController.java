@@ -43,6 +43,20 @@ public class UserController {
                 .ok(response);
     }
 
+    @RequestMapping(value = "/all/user", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllUser() {
+        List<UserEntity> userEntities = userService.getAllUser();
+
+        MyResponse response = MyResponse
+                .builder()
+                .buildCode(200)
+                .buildMessage("Successfully")
+                .buildData(userMapper.listUserEntityToDto(userEntities))
+                .get();
+        return ResponseEntity
+                .ok(response);
+    }
+
     @RequestMapping(value = "/user", method = RequestMethod.PUT)
     public ResponseEntity<?> updateUser(@RequestBody UserRequest userRequest,
                                         @RequestParam Integer userId) {

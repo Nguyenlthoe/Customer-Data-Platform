@@ -123,4 +123,9 @@ public class BookService {
         BookEntity bookEntity = bookRepository.findById(id);
         return bookEntity;
     }
+
+    public List<BookEntity> getAllBook() {
+        List<BookEntity> books = bookRepository.findAll();
+        return books;
+    }
 }
