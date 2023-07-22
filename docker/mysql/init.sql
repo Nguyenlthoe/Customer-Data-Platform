@@ -142,28 +142,78 @@ CREATE TABLE `cdp_segment_customer_association` (
   KEY `user_id` (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE tracking_action_product (
-  `time` BIGINT NOT NULL,
-  `date` TIMESTAMP NOT NULL,
-  `event_id` VARCHAR(256) NOT NULL,
-  `user_id` INT,
-  `domain_userid` VARCHAR(256),
-  `action` VARCHAR(50) NOT NULL,
-  `extra` VARCHAR(256),
-  `product_id` INT NOT NULL,
-  `quantity` INT NOT NULL,
-  `price` INT NOT NULL,
-  `category_id` INT NOT NULL,
-  `publisher_id` INT NOT NULL,
-  `author_id` INT NOT NULL
+CREATE TABLE `cdp_mapping` (
+  `domain_userid` VARCHAR(256) NOT NULL,
+  `user_id` int NOT NULL,
+  `create_at` DATETIME NOT NULL,
+  PRIMARY KEY (`domain_userid`,`user_id`)
 ) ENGINE=innodb DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE `tracking_action_search` (
-  `time` BIGINT NOT NULL,
-  `date` TIMESTAMP NOT NULL,
-  `event_id` VARCHAR(256) NOT NULL,
-  `user_id` INT,
-  `domain_userid` VARCHAR(256),
-  `action` VARCHAR(50) NOT NULL,
-  `search_value` VARCHAR(256) NOT NULL
+CREATE TABLE `product_analysis` (
+  `time` DATETIME NOT NULL,
+  `product_id` INT NOT NULL,
+  `view` INT NOT NULL,
+  `purchase` INT NOT NULL,
+  `revenue` INT NOT NULL,
+  PRIMARY KEY (`time`, `product_id`)
 ) ENGINE=innodb DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `category_analysis` (
+  `time` DATETIME NOT NULL,
+  `category_id` INT NOT NULL,
+  `view` INT NOT NULL,
+  `purchase` INT NOT NULL,
+  `revenue` INT NOT NULL,
+  PRIMARY KEY (`time`, `category_id`)
+) ENGINE=innodb DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `value_analysis` (
+  `time` DATETIME NOT NULL,
+  `range_value` VARCHAR(256) NOT NULL,
+  `view` INT NOT NULL,
+  `purchase` INT NOT NULL,
+  `revenue` INT NOT NULL,
+  PRIMARY KEY (`time`, `range_value`)
+) ENGINE=innodb DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `view_analysis` (
+  `time` DATETIME NOT NULL,
+  `user` INT NOT NULL,
+  `view` INT NOT NULL,
+  PRIMARY KEY (`time`)
+) ENGINE=innodb DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `location_analysis` (
+  `time` DATETIME NOT NULL,
+  `location` VARCHAR(256) NOT NULL,
+  `user` INT NOT NULL,
+  `view` INT NOT NULL,
+  PRIMARY KEY (`time`, `location`)
+) ENGINE=innodb DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- CREATE TABLE tracking_action_product (
+--   `time` BIGINT NOT NULL,
+--   `date` TIMESTAMP NOT NULL,
+--   `event_id` VARCHAR(256) NOT NULL,
+--   `user_id` INT,
+--   `domain_userid` VARCHAR(256),
+--   `action` VARCHAR(50) NOT NULL,
+--   `extra` VARCHAR(256),
+--   `product_id` INT NOT NULL,
+--   `quantity` INT NOT NULL,
+--   `price` INT NOT NULL,
+--   `category_id` INT NOT NULL,
+--   `publisher_id` INT NOT NULL,
+--   `author_id` INT NOT NULL
+-- ) ENGINE=innodb DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- CREATE TABLE `tracking_action_search` (
+--   `time` BIGINT NOT NULL,
+--   `date` TIMESTAMP NOT NULL,
+--   `event_id` VARCHAR(256) NOT NULL,
+--   `user_id` INT,
+--   `domain_userid` VARCHAR(256),
+--   `action` VARCHAR(50) NOT NULL,
+--   `search_value` VARCHAR(256) NOT NULL
+-- ) ENGINE=innodb DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
