@@ -1,3 +1,5 @@
+use `customer-data-platform`;
+
 CREATE TABLE `bookshop_author` (
   `author_id` int NOT NULL AUTO_INCREMENT,
   `created_at` datetime DEFAULT NULL,
@@ -25,7 +27,7 @@ CREATE TABLE `bookshop_bill` (
   `total` int DEFAULT NULL,
   PRIMARY KEY (`bill_id`),
   KEY `FKjwnuayk56ai1o3asn08k5451i` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `bookshop_bill_book_association` (
   `bill_id` int NOT NULL,
@@ -84,7 +86,7 @@ CREATE TABLE `bookshop_comment` (
   PRIMARY KEY (`comment_id`),
   KEY `user_id` (`user_id`),
   KEY `book_id` (`book_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `bookshop_customer` (
   `user_id` int NOT NULL AUTO_INCREMENT,
@@ -107,7 +109,7 @@ CREATE TABLE `bookshop_customer` (
   `avg_bill_value` double DEFAULT '0',
   `short_hobbies` text,
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1236 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1245 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `bookshop_publisher` (
   `publisher_id` int NOT NULL AUTO_INCREMENT,
@@ -157,7 +159,7 @@ CREATE TABLE `cdp_segment` (
   `is_deleted` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`segment_id`),
   KEY `admin_id` (`admin_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `cdp_segment_customer_association` (
   `segment_id` int NOT NULL,

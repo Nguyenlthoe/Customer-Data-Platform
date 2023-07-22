@@ -14,11 +14,15 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -113,5 +117,14 @@ public class UserService {
         if(userId != userClaim.asInt()){
             throw new RequestInvalid("Token invalid");
         }
+    }
+
+    public List<UserEntity> getAllUser() {
+        Pageable pageable = PageRequest.of(0, 300, Sort.by("userId"));
+        Page<UserEntity> userPage = userRepository.findAll(pageable);
+        Random random = new Random();
+        Pageable pageable2 = PageRequest.of(random.nextInt(userPage.getTotalPages()), 300, Sort.by("userId"));
+        Page<UserEntity> userPage2 = userRepository.findAll(pageable2);
+        return userPage2.toList();
     }
 }

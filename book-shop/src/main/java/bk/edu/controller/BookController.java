@@ -88,6 +88,20 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
 
+    @RequestMapping(value = "/all/book", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllBook() {
+        List<BookDto> books = bookMapper.listBookEntityToDto(bookService.getAllBook());
+
+        Map<String, Object> mapReturn = new HashMap<>();
+        MyResponse response = MyResponse
+                .builder()
+                .buildCode(200)
+                .buildMessage("Successfully")
+                .buildData(books)
+                .get();
+        return ResponseEntity.ok(response);
+    }
+
     @RequestMapping(value = "/book/{bookId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateBook(@PathVariable int bookId,
                                           @RequestBody BookRequest bookRequest) {
