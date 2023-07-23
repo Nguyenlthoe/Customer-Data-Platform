@@ -188,7 +188,7 @@ public class MySqlUtils {
     }
 
     public List<SegmentInfo> getNewSegment() {
-        Long time = System.currentTimeMillis() - TimeUtils.A_MINUTE_IN_MILLISECOND * 11;
+        Long time = System.currentTimeMillis() - TimeUtils.A_MINUTE_IN_MILLISECOND * 65;
         Timestamp timestamp = new Timestamp(time);
         List<SegmentInfo> segments = new ArrayList<>();
         String sql = "SELECT segment_id, rule FROM cdp_segment where is_deleted = 0 and updated_at > ?;";

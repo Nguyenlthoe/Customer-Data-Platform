@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Date;
 
+import static org.apache.spark.sql.functions.col;
+
 public class SegmentAllUser implements Serializable {
 
 
@@ -40,7 +42,7 @@ public class SegmentAllUser implements Serializable {
             segmentAllUser.processNewSegment(sparkUtil);
         } else {
             SparkUtils sparkUtil = new SparkUtils("segment user updated", log, true);
-            segmentAllUser.process(sparkUtil,false);
+            segmentAllUser.processUserUpdated(sparkUtil);
         }
     }
 
@@ -48,54 +50,62 @@ public class SegmentAllUser implements Serializable {
         MySqlUtils mySqlUtils = new MySqlUtils();
         List<SegmentInfo> segments = mySqlUtils.getNewSegment();
 
+
+        Long timeStart = System.currentTimeMillis();
         Dataset<Row> df = sparkUtil.getTableDataframe("bookshop_customer");
 
         System.out.println("Number user process: " + df.count());
         df.show();
         Dataset<Row> finalDf = df;
-
+        Long timeStart2 = System.currentTimeMillis();
         finalDf.persist(StorageLevel.MEMORY_ONLY());
         segments.forEach(segmentInfo -> {
             System.out.println("Process segment id : " + segmentInfo.getSegmentId());
             linkSegmentAndUser(segmentInfo, finalDf);
         });
-
-        df.foreachPartition(new ForeachPartitionFunction<Row>() {
-            @Override
-            public void call(Iterator<Row> rows) throws Exception {
-
-                String selectSql = "SELECT * FROM cdp_segment_customer_association WHERE user_id = ? ;";
-                String deleteSql = "DELETE FROM cdp_segment_customer_association WHERE (`user_id` = ? and `segment_id` = ? );";
-                MySqlUtils mySqlUtil = new MySqlUtils();
-                Connection mysqlConnection = mySqlUtil.getConnection();
-                PreparedStatement selectP = mysqlConnection.prepareStatement(selectSql);
-                PreparedStatement deleteP = mysqlConnection.prepareStatement(deleteSql);
-                while (rows.hasNext()){
-                    Row row = rows.next();
-                    int user_id = row.getInt(0);
-
-                    deleteP.setInt(1, user_id);
-                    selectP.setInt(1, user_id);
-                    ResultSet rs = selectP.executeQuery();
-                    while (rs.next()){
-                        Timestamp timestamp = rs.getTimestamp("updated_at");
-                        if (timestamp.getTime() < timeNow){
-                            int segment_id = rs.getInt("segment_id");
-                            deleteP.setInt(2, segment_id);
-                            deleteP.executeUpdate();
-                        }
-                    }
-
-                }
-                mySqlUtil.close();
-            }
-        });
-        System.out.println(df.count());
         finalDf.unpersist();
+
+        deletedAssociationBySegmentId(segments);
+
+        System.out.println("Time process: " + (System.currentTimeMillis() - timeStart2) / 1000 + "s");
+        System.out.println("Total time process: " + (System.currentTimeMillis() - timeStart) / 1000 + "S");
 
         mySqlUtils.close();
     }
 
+    private void processUserUpdated(SparkUtils sparkUtils){
+        long timeStart = System.currentTimeMillis();
+        while (true){
+            MySqlUtils mySqlUtils = new MySqlUtils();
+            List<SegmentInfo> segments = mySqlUtils.getAllSegment();
+            long timeEnd = System.currentTimeMillis();
+            Dataset<Row> df = sparkUtils.getTableDataframe("bookshop_customer");
+            df = df.filter(col("updated_at").$greater$eq(new Date(timeStart)))
+                    .filter(col("updated_at").$less(new Date(timeEnd)));
+            df.show();
+
+            System.out.println("Number user process: " + df.count());
+            Long timeStart1 = System.currentTimeMillis();
+            Dataset<Row> finalDf = df;
+            finalDf.persist(StorageLevel.MEMORY_ONLY());
+            segments.forEach(segmentInfo -> {
+                System.out.println(segmentInfo.getSegmentId());
+                linkSegmentAndUser(segmentInfo, finalDf);
+            });
+            deleteAssociation(finalDf);
+            finalDf.unpersist();
+
+            System.out.println("Time process: " + (System.currentTimeMillis() - timeStart1) / 1000 + "s");
+            System.out.println("Total time process: " + (System.currentTimeMillis() - timeEnd) / 1000 + "S");
+            timeStart = timeEnd;
+            try {
+                Thread.sleep(60 * 1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                System.out.println("Interrupt by sleep");
+            }
+        }
+    }
     private void process(SparkUtils sparkUtil, boolean processAll) {
         MySqlUtils mySqlUtils = new MySqlUtils();
         List<SegmentInfo> segments = mySqlUtils.getAllSegment();
@@ -116,44 +126,50 @@ public class SegmentAllUser implements Serializable {
             linkSegmentAndUser(segmentInfo, finalDf);
         });
 
-        df.foreachPartition(new ForeachPartitionFunction<Row>() {
-            @Override
-            public void call(Iterator<Row> rows) throws Exception {
-
-                String selectSql = "SELECT * FROM cdp_segment_customer_association WHERE user_id = ? ;";
-                String deleteSql = "DELETE FROM cdp_segment_customer_association WHERE (`user_id` = ? and `segment_id` = ? );";
-                MySqlUtils mySqlUtil = new MySqlUtils();
-                Connection mysqlConnection = mySqlUtil.getConnection();
-                PreparedStatement selectP = mysqlConnection.prepareStatement(selectSql);
-                PreparedStatement deleteP = mysqlConnection.prepareStatement(deleteSql);
-                while (rows.hasNext()){
-                    Row row = rows.next();
-                    int user_id = row.getInt(0);
-
-                    deleteP.setInt(1, user_id);
-                    selectP.setInt(1, user_id);
-                    ResultSet rs = selectP.executeQuery();
-                    while (rs.next()){
-                        Timestamp timestamp = rs.getTimestamp("updated_at");
-                        if (timestamp.getTime() < timeNow){
-                            int segment_id = rs.getInt("segment_id");
-                            deleteP.setInt(2, segment_id);
-                            deleteP.executeUpdate();
-                        }
-                    }
-
-                }
-                mySqlUtil.close();
-            }
-        });
+        deleteAssociation(df);
         System.out.println(df.count());
         finalDf.unpersist();
 
         mySqlUtils.close();
     }
 
-    public void deleteAssociation(Dataset<Row> df){
+    public void deletedAssociationBySegmentId(List<SegmentInfo> segments){
+        segments.forEach(segmentInfo -> {
+            String selectSql = "SELECT * FROM cdp_segment_customer_association WHERE segment_id = ? ;";
+            String deleteSql = "DELETE FROM cdp_segment_customer_association WHERE (`segment_id` = ? and `user_id` = ? );";
+            MySqlUtils mySqlUtil = new MySqlUtils();
+            Connection mysqlConnection = mySqlUtil.getConnection();
+            try {
+                PreparedStatement selectP = mysqlConnection.prepareStatement(selectSql);
+                PreparedStatement deleteP = mysqlConnection.prepareStatement(deleteSql);
 
+                deleteP.setInt(1, segmentInfo.getSegmentId());
+                selectP.setInt(1, segmentInfo.getSegmentId());
+                ResultSet rs = selectP.executeQuery();
+                while (rs.next()){
+                    Timestamp timestamp = rs.getTimestamp("updated_at");
+                    if (timestamp.getTime() < timeNow){
+                        int user_id = rs.getInt("user_id");
+                        deleteP.setInt(2, user_id);
+                        deleteP.executeUpdate();
+                    }
+                }
+            } catch (Exception ignore) {
+                ignore.printStackTrace();
+            } finally {
+                mySqlUtil.close();
+            }
+        });
+    }
+
+    public void deleteAssociation(Dataset<Row> df){
+        df.foreachPartition(new ForeachPartitionFunction<Row>() {
+            @Override
+            public void call(Iterator<Row> rows) throws Exception {
+
+
+            }
+        });
     }
 
     private void linkSegmentAndUser(SegmentInfo segmentInfo, Dataset<Row> df){

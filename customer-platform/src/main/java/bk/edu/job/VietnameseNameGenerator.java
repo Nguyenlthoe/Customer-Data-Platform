@@ -179,13 +179,9 @@ public class VietnameseNameGenerator {
     public static void main(String[] args) throws JsonProcessingException {
         VietnameseNameGenerator vietnameseNameGenerator = new VietnameseNameGenerator();
         List<UserInfo> users = new ArrayList<>();
-        for(int i = 0; i < 1000; i++){
+        for(int i = 0; i < 10000; i++){
             users.add(vietnameseNameGenerator.generateUser());
         }
         vietnameseNameGenerator.insertUser(users);
-//        MySqlUtils mySqlUtils = new MySqlUtils();
-//        mySqlUtils.getTime();
-//        mySqlUtils.close();
-//        System.out.println(System.currentTimeMillis());
     }
 }
