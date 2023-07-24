@@ -14,7 +14,7 @@ DEFAULT_ARGS = {
 
 dag = DAG(dag_id="update_information", schedule="1 0 * * *",
           tags=["cdp"],
-          start_date=pendulum.datetime(2021, 1, 1, tz="UTC"),
+          start_date=pendulum.datetime(2023, 7, 11, tz="UTC"),
           max_active_runs=1,
           default_args=DEFAULT_ARGS)
 # Step 1 - init env
@@ -34,6 +34,7 @@ bash update_short_hobbies.sh
 """
 update_short_hobbies = SSHOperator(
     conn_timeout = 2000,
+    cmd_timeout = 2000,
     ssh_conn_id='hadoop-master',
     task_id='run_update_short_hobbies',
     command=update_short_hobbies_bash,
@@ -46,6 +47,7 @@ bash update_long_hobbies.sh
 """
 update_long_hobbies = SSHOperator(
     conn_timeout = 2000,
+    cmd_timeout = 2000,
     ssh_conn_id='hadoop-master',
     task_id='run_update_long_hobbies',
     command=update_long_hobbies_bash,

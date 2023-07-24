@@ -33,6 +33,7 @@ ls &&
 bash run_new_segment.sh   
 """
 run_new_segment = SSHOperator(
+    cmd_timeout = 2000,
     conn_timeout = 2000,
     ssh_conn_id='hadoop-master',
     task_id='run_new_segment',
