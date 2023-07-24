@@ -7,6 +7,7 @@ import bk.edu.utils.TimeUtils;
 import org.apache.spark.api.java.function.ForeachPartitionFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.storage.StorageLevel;
 
 import java.sql.Timestamp;
 import java.util.Set;
@@ -14,9 +15,8 @@ import java.util.Set;
 import static org.apache.spark.sql.functions.col;
 
 public class UpdateShortHobby {
-    public void process(boolean log){
+    public void process(SparkUtils sparkUtil){
         System.out.println("Start update short hobbies");
-        SparkUtils sparkUtil = new SparkUtils("update short hobby", log, true);
 
         long start = System.currentTimeMillis();
         MySqlUtils mySqlUtils = new MySqlUtils();
@@ -25,8 +25,9 @@ public class UpdateShortHobby {
 
         Dataset<Row> df = sparkUtil.getTableDataframe("bookshop_customer");
         //df.printSchema();
-        df = df.filter(col("updated_at").$greater(new Timestamp(TimeUtils.getDayBefore(1))));
-        df.select("user_id", "email", "name").show();
+        Timestamp time = new Timestamp(TimeUtils.getDayBefore(1));
+        df = df.repartition(8).filter(col("updated_at").$greater(time));
+        df.persist(StorageLevel.MEMORY_ONLY());
 
         df.foreachPartition((ForeachPartitionFunction<Row>) t -> {
             MySqlUtils mySql = new MySqlUtils();
@@ -40,7 +41,9 @@ public class UpdateShortHobby {
 
         System.out.println("Time process: " + (System.currentTimeMillis() - start) / 1000 + "s");
 
+        df.select("user_id", "email", "name").show();
         System.out.println("Number user has updated: " + df.count());
+        df.unpersist();
     }
     public static void main(String args[]){
         UpdateShortHobby updateShortHobby = new UpdateShortHobby();
@@ -48,6 +51,7 @@ public class UpdateShortHobby {
         if(args[0].equals("false")){
             log = false;
         }
-        updateShortHobby.process(log);
+        SparkUtils sparkUtil = new SparkUtils("updateShortHobbies", log, true);
+        updateShortHobby.process(sparkUtil);
     }
 }

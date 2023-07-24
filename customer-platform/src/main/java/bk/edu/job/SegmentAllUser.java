@@ -38,7 +38,7 @@ public class SegmentAllUser implements Serializable {
             SparkUtils sparkUtil = new SparkUtils("segment all user", log, true);
             segmentAllUser.process(sparkUtil, true);
         } else if (args[0].equals("new")) {
-            SparkUtils sparkUtil = new SparkUtils("segment new, update segment", log, true);
+            SparkUtils sparkUtil = new SparkUtils("segment new, update segments", log, true);
             segmentAllUser.processNewSegment(sparkUtil);
         } else {
             SparkUtils sparkUtil = new SparkUtils("segment user updated", log, true);
@@ -86,7 +86,7 @@ public class SegmentAllUser implements Serializable {
 
             System.out.println("Number user process: " + df.count());
             Long timeStart1 = System.currentTimeMillis();
-            Dataset<Row> finalDf = df;
+            Dataset<Row> finalDf = df.repartition(8);
             finalDf.persist(StorageLevel.MEMORY_ONLY());
             segments.forEach(segmentInfo -> {
                 System.out.println(segmentInfo.getSegmentId());
@@ -118,7 +118,7 @@ public class SegmentAllUser implements Serializable {
         }
         System.out.println("Number user process: " + df.count());
         df.show();
-        Dataset<Row> finalDf = df;
+        Dataset<Row> finalDf = df.repartition(8);
 
         finalDf.persist(StorageLevel.MEMORY_ONLY());
         segments.forEach(segmentInfo -> {

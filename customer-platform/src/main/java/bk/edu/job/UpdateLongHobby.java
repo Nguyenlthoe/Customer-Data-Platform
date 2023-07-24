@@ -9,6 +9,7 @@ import bk.edu.utils.TimeUtils;
 import org.apache.spark.api.java.function.ForeachPartitionFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.storage.StorageLevel;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -17,6 +18,7 @@ import java.util.Date;
 import static org.apache.spark.sql.functions.col;
 
 public class UpdateLongHobby implements Serializable {
+    public static Timestamp time = new Timestamp(TimeUtils.getDayBefore(1));;
 
     public static void main(String args[]){
         UpdateLongHobby updateLongHobby = new UpdateLongHobby();
@@ -24,17 +26,18 @@ public class UpdateLongHobby implements Serializable {
         if(args[0].equals("false")){
             log = false;
         }
-        updateLongHobby.process(log);
+        SparkUtils sparkUtil = new SparkUtils("updateLongHobbies", log, true);
+        updateLongHobby.process(sparkUtil);
     }
 
-    public void process(boolean log){
-        SparkUtils sparkUtil = new SparkUtils("update long hobby", log, true);
+    public void process(SparkUtils sparkUtil){
         System.out.println("Start updating long hobbies");
         long start = System.currentTimeMillis();
         Dataset<Row> df = sparkUtil.getTableDataframe("bookshop_customer");
         //df.printSchema();
-        df = df.filter(col("updated_at").$greater(new Timestamp(TimeUtils.getDayBefore(1))));
-        df.select("user_id", "email", "name").show();
+
+        df = df.repartition(8).filter(col("updated_at").$greater(time));
+        df.persist(StorageLevel.MEMORY_ONLY());
         df.foreachPartition((ForeachPartitionFunction<Row>) t -> {
             MySqlUtils mySqlUtils = new MySqlUtils();
             ElasticUtils elasticUtils = new ElasticUtils();
@@ -50,8 +53,9 @@ public class UpdateLongHobby implements Serializable {
         });
 
         System.out.println("Time process: " + (System.currentTimeMillis() - start) / 1000 + "s");
+        df.select("user_id", "email", "name").show();
         System.out.println("Number user long hobbies updated: " + df.count());
-
+        df.unpersist();
     }
 
 }
