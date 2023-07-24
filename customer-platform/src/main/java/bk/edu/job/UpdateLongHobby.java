@@ -26,6 +26,7 @@ public class UpdateLongHobby implements Serializable {
     public void process(){
         SparkUtils sparkUtil = new SparkUtils("update long hobby", true, true);
         System.out.println("Start updating long hobbies");
+        long start = System.currentTimeMillis();
         Dataset<Row> df = sparkUtil.getTableDataframe("bookshop_customer");
         //df.printSchema();
         df = df.filter(col("updated_at").$greater(new Timestamp(TimeUtils.getDayBefore(1))));
@@ -43,7 +44,10 @@ public class UpdateLongHobby implements Serializable {
             elasticUtils.close();
             mySqlUtils.close();
         });
+
+        System.out.println("Time process: " + (System.currentTimeMillis() - start) / 1000 + "s");
         System.out.println("Number user long hobbies updated: " + df.count());
+
     }
 
 }

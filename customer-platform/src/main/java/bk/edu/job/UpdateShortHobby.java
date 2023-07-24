@@ -18,6 +18,7 @@ public class UpdateShortHobby {
         System.out.println("Start update short hobbies");
         SparkUtils sparkUtil = new SparkUtils("update short hobby", true, true);
 
+        long start = System.currentTimeMillis();
         MySqlUtils mySqlUtils = new MySqlUtils();
         mySqlUtils.deleteOldHobby();
         mySqlUtils.close();
@@ -36,6 +37,9 @@ public class UpdateShortHobby {
             }
             mySql.close();
         });
+
+        System.out.println("Time process: " + (System.currentTimeMillis() - start) / 1000 + "s");
+
         System.out.println("Number user has updated: " + df.count());
     }
     public static void main(String args[]){

@@ -42,10 +42,10 @@ public class SparkUtils implements Serializable{
     }
 
     public SparkSession createSparkConfig(String nameJob, boolean log, boolean master) {
-        Logger.getLogger("org").setLevel(Level.OFF);
+        Logger.getLogger("akka").setLevel(Level.OFF);
         if (!log) {
             System.out.println("run with disable log");
-            Logger.getLogger("akka").setLevel(Level.OFF);
+            Logger.getLogger("org").setLevel(Level.OFF);
         }
         if (master) {
             return SparkSession
@@ -55,6 +55,7 @@ public class SparkUtils implements Serializable{
                     .config("spark.sql.parquet.binaryAsString", "true")
                     .config("spark.hadoop.validateOutputSpecs", "false")
                     .config("spark.driver.memory", "1g")
+                    .config("spark.sql.shuffle.partitions", "8")
                     .config("spark.speculation","false")    // đè hết config set khi chạy
                     .config("spark.yarn.access.hadoopFileSystems","/data/raw/day/")
 

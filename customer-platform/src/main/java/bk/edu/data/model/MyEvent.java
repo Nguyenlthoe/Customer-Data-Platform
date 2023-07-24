@@ -22,8 +22,6 @@ public class MyEvent implements Serializable {
 
     private String domain_userid;
 
-    private String event_name;
-
     private String event;
 
     private Integer book_id;
@@ -34,14 +32,11 @@ public class MyEvent implements Serializable {
 
     private int author_id;
 
-    private int price;
-
-    public void setBook(int book_id, int category_id, int publisher_id, int author_id, int price){
+    public void setBook(int book_id, int category_id, int publisher_id, int author_id){
         this.book_id = book_id;
         this.category_id = category_id;
         this.publisher_id = publisher_id;
         this.author_id = author_id;
-        this.price = price;
     }
 
 }

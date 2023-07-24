@@ -120,10 +120,8 @@ public class MySqlUtils {
         }
     }
 
-    public void updateCustomerCategory(int userId, int categoryId){
-        String sql = "UPDATE `cdp_customer_category_association` SET `updated_at` = ? WHERE (`user_id` = ? ) and (`category_id` = ? );\n";
+    public void updateCustomerCategory(int userId, int categoryId, PreparedStatement preparedStatement){
         try {
-            PreparedStatement preparedStatement = mysqlConnection.prepareStatement(sql);
             preparedStatement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
             preparedStatement.setInt(2, userId);
             preparedStatement.setInt(3, categoryId);
@@ -132,10 +130,8 @@ public class MySqlUtils {
             System.err.println("Update failed");
         }
     }
-    public boolean checkExistCustomerCategory(int userId, int categoryId){
-        String sql = "SELECT * FROM cdp_customer_category_association WHERE user_id = ? and category_id = ?";
+    public boolean checkExistCustomerCategory(int userId, int categoryId, PreparedStatement preparedStatement){
         try {
-            PreparedStatement preparedStatement = mysqlConnection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
             preparedStatement.setInt(2, categoryId);
             ResultSet rs = preparedStatement.executeQuery();
@@ -174,10 +170,8 @@ public class MySqlUtils {
             System.err.println("Insert failed");
         }
     }
-    public void insertCustomerCategory(int userId, int categoryId){
-        String sql = "INSERT INTO `cdp_customer_category_association` (`user_id`, `category_id`, `updated_at`) VALUES ( ? , ? , ? );\n";
+    public void insertCustomerCategory(int userId, int categoryId, PreparedStatement preparedStatement){
         try {
-            PreparedStatement preparedStatement = mysqlConnection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
             preparedStatement.setInt(2, categoryId);
             preparedStatement.setTimestamp(3, new Timestamp(System.currentTimeMillis()));

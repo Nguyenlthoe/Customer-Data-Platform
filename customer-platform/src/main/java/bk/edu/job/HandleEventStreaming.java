@@ -18,6 +18,7 @@ import org.apache.spark.sql.catalyst.encoders.RowEncoder;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
+import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.api.java.JavaInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.kafka010.ConsumerStrategies;
@@ -30,6 +31,8 @@ import scala.Serializable;
 import scala.Tuple2;
 import static org.apache.spark.sql.functions.col;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.function.Consumer;
@@ -61,7 +64,6 @@ public class HandleEventStreaming {
     public static MyEvent transformRow(Row row) {
         String value = row.getAs(0);
         String[] propertyIndex = value.split("\t");
-        String event_name = propertyIndex[126];
         String event_id = propertyIndex[6];
         MyEvent myEvent = new MyEvent();
         long collector_tstamp = Timestamp.valueOf(propertyIndex[3]).getTime();
@@ -80,15 +82,13 @@ public class HandleEventStreaming {
         myEvent.setCollector_tstamp(collector_tstamp);
         myEvent.setUser_id(user_id);
         myEvent.setDomain_userid(domain_userid);
-        myEvent.setEvent_name(event_name);
         myEvent.setEvent_id(event_id);
         try {
             myEvent.setEvent(unstruct_event.getJSONObject("data").getString("data"));
         } catch (Exception e) {
             myEvent.setEvent("page_view");
         }
-        if (!myEvent.getEvent().toString().contains("purchase")
-                && myEvent.getEvent_name().equals("product_action")) {
+        if (!myEvent.getEvent().toString().contains("purchase")) {
             for (int i = 0; i < data.length(); i++) {
 
                 try {
@@ -96,7 +96,7 @@ public class HandleEventStreaming {
                     if (jsonObject.getString("schema").equals("iglu:com.bookshop/product_context/jsonschema/1-0-0")) {
                         JSONObject databook = jsonObject.getJSONObject("data");
                         myEvent.setBook(databook.getInt("product_id"), databook.getInt("category_id"),
-                                databook.getInt("publisher_id"), databook.getInt("author_id"), databook.getInt("price"));
+                                databook.getInt("publisher_id"), databook.getInt("author_id"));
                         break;
                     }
                 } catch (Exception ignore) {
@@ -112,7 +112,7 @@ public class HandleEventStreaming {
         return myEvent;
     }
 
-    public void handleEventView(Dataset<Row> df){
+    public void handleEventView(Dataset<Row> df, Long timeStart){
         Dataset<Row> bookCustomerDf = df
                 .filter(col("event").like("%view%"))
                 .select("user_id", "book_id").distinct();
@@ -128,63 +128,80 @@ public class HandleEventStreaming {
                         mySqlUtils.insertCustomerBook(userId, bookId);
 
                         rows.add(RowFactory.create(userId));
-                        System.out.println(String.format("Insert new (userId, bookId): (%d, %d)",
-                                userId, bookId));
                     }
                 } catch (Exception ignore){
+                    ignore.printStackTrace();
                 }
             }
             mySqlUtils.close();
             return rows.iterator();
         }, RowEncoder.apply(structType));
 
+        customerUpdateDf.persist(StorageLevel.MEMORY_ONLY());
         customerUpdateDf.foreachPartition((ForeachPartitionFunction<Row>) t -> {
             MySqlUtils mySqlUtils = new MySqlUtils();
             while (t.hasNext()){
                 Row row = t.next();
-                int userId = row.getInt(0);
-                mySqlUtils.updateBookRead(userId);
+                mySqlUtils.updateBookRead(row.getInt(0));
             }
             mySqlUtils.close();
         });
+        System.out.println("Time process: " + (System.currentTimeMillis() - timeStart) / 1000 + "s");
         System.out.println("Number user view updated: " + customerUpdateDf.count());
+
+        customerUpdateDf.unpersist();
     }
 
-    public void handleUpdateShortHobbies(Dataset<Row> df){
-        Dataset<Row> categoryCustomerDf = df.select("user_id", "category_id").distinct();
-        categoryCustomerDf.foreachPartition((ForeachPartitionFunction<Row>) t -> {
+    public void handleUpdateShortHobbies(Dataset<Row> df, Long timeStart){
+        Dataset<Row> categoryCustomerDf = df.select("user_id", "category_id").distinct().mapPartitions((MapPartitionsFunction<Row, Row>) t -> {
+            List<Row> rows = new ArrayList<>();
             MySqlUtils mySqlUtils = new MySqlUtils();
+            Connection connection = mySqlUtils.getConnection();
+            PreparedStatement preparedExist = connection
+                .prepareStatement("SELECT * FROM cdp_customer_category_association " +
+                    "WHERE user_id = ? and category_id = ?");
+            PreparedStatement preparedInsert = connection
+                .prepareStatement("INSERT INTO `cdp_customer_category_association` " +
+                    "(`user_id`, `category_id`, `updated_at`) VALUES ( ? , ? , ? );\n");
+            PreparedStatement preparedUpdate = connection
+                .prepareStatement("UPDATE `cdp_customer_category_association` " +
+                    "SET `updated_at` = ? WHERE (`user_id` = ? ) and (`category_id` = ? );\n");
+
             while (t.hasNext()){
                 Row row = t.next();
                 try {
                     int userId = Integer.parseInt(row.getString(0));
                     int categoryId = row.getInt(1);
-                    if(!mySqlUtils.checkExistCustomerCategory(userId, categoryId)){
-                        mySqlUtils.insertCustomerCategory(userId, categoryId);
+                    if(!mySqlUtils.checkExistCustomerCategory(userId, categoryId, preparedExist)){
+                        mySqlUtils.insertCustomerCategory(userId, categoryId, preparedInsert);
+                        rows.add(RowFactory.create(userId));
                     } else {
-                        mySqlUtils.updateCustomerCategory(userId, categoryId);
+                        mySqlUtils.updateCustomerCategory(userId, categoryId, preparedUpdate);
                     }
                 } catch (Exception ignore){
 
                 }
             }
             mySqlUtils.close();
-        });
-        Dataset<Row> customerDf = df.select("user_id").distinct();
-        customerDf.foreachPartition((ForeachPartitionFunction<Row>) t -> {
+            return rows.iterator();
+        }, RowEncoder.apply(structType));
+        categoryCustomerDf.persist(StorageLevel.MEMORY_ONLY());
+        categoryCustomerDf.distinct().foreachPartition((ForeachPartitionFunction<Row>) t -> {
             MySqlUtils mySqlUtils = new MySqlUtils();
             while (t.hasNext()){
                 Row row = t.next();
                 try {
-                    int userId = Integer.parseInt(row.getString(0));
-                    mySqlUtils.updateShortHobbies(userId);
+                    mySqlUtils.updateShortHobbies(row.getInt(0));
                 } catch (Exception ignore){
 
                 }
             }
             mySqlUtils.close();
         });
-        System.out.println("Number user short_hobbies has updated :" + customerDf.count());
+
+        System.out.println("Time process: " + (System.currentTimeMillis() - timeStart) / 1000 + "s");
+        System.out.println("Number user short_hobbies has updated :" + categoryCustomerDf.count());
+        categoryCustomerDf.unpersist();
     }
     public void run(String option) throws InterruptedException {
         JavaStreamingContext javaStreamingContext = sparkUtils.javaStreamingContext;
@@ -194,17 +211,19 @@ public class HandleEventStreaming {
                         LocationStrategies.PreferConsistent(),
                         ConsumerStrategies.Subscribe(Config.KAFKA.TOPIC, Config.KAFKA.KAFKA_PARAM));
         stream.foreachRDD((consumerRecordJavaRDD, time) -> {
+            Long start = System.currentTimeMillis();
             JavaRDD<MyEvent> rows = consumerRecordJavaRDD
                     .map(consumerRecord -> RowFactory.create(consumerRecord.value(), consumerRecord.topic()))
                     .map(HandleEventStreaming::transformRow)
                     .filter(Objects::nonNull);
             Dataset<Row> df = sparkUtils.session.createDataFrame(rows, MyEvent.class);
-            df.persist();
+            df.persist(StorageLevel.MEMORY_ONLY());
             if(option.equals("view")){
-                handleEventView(df);
+                handleEventView(df, start);
             } else if (option.equals("hobby")){
-                handleUpdateShortHobbies(df);
+                handleUpdateShortHobbies(df, start);
             }
+            System.out.println("Number event handle: " + df.count());
             df.show();
             df.unpersist();
         });
