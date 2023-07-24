@@ -141,7 +141,7 @@ export function AddSegment(){
             </div>
             <div className='flexbox_spacearound flex w-full items-start justify-start space-x-2 ml-8'>
                                 <Button variant='contained' className="w-56 text-xl" onClick={handleAddCondition}>Thêm điều kiện</Button>
-                                <Button variant='contained' className="w-56 text-xl" onClick={handleAddSegment}>Cập nhật phân khúc</Button>
+                                <Button variant='contained' className="w-56 text-xl" onClick={handleAddSegment}>Tạo phân khúc</Button>
                             </div>
             </div>
         </>
