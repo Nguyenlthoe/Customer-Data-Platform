@@ -14,8 +14,8 @@ export function Body(props) {
         </Route>
           <Route path="/segments" element = {<ManageSegment/>}/>
           <Route path="/segment/:slug" element = {<SegmentDetail/>}/>
-          <Route path="/admin/modifysegment/:slug" element = {<ModifySegment/>}/>
-          <Route path="/admin/addsegment" element = {<AddSegment/>}/>
+          <Route path="/admin/modify-segment/:slug" element = {<ModifySegment/>}/>
+          <Route path="/admin/add-segment" element = {<AddSegment/>}/>
           <Route path="/customer/:slug" element = {<CustomerDetail/>}/>
       </Routes>
     )

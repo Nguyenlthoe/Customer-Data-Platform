@@ -69,10 +69,17 @@ export function ManageSegment() {
         window.location.href = "/admin/modifysegment/" + index
     }
 
+    function handleAdd() {
+            window.location.href = "/admin/add-segment/"
+    }
+
     return (
         <div className="m-4 p-4 min-h-[90vh] shadow-lg bg-white rounded-xl flex flex-col items-center justify-start space-y-10">
             <div className="overview">
                 <label className="text-4xl">Tổng số phân khúc trong hệ thống: {total}</label>
+            </div>
+            <div className="left_size">
+                <Button variant='contained' onClick={handleAdd}>Tạo phân khúc</Button>
             </div>
             <div className='w-full flex flex-col items-center justify-center space-y-4'>
                 {/* <div className="separate"></div> */}
