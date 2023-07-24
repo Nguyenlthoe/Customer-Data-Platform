@@ -84,7 +84,7 @@ public class SegmentController {
     @RequestMapping(value = "/api/v1/segment", method = RequestMethod.GET)
     public ResponseEntity<?> getListSegment(@RequestParam(value = "page", required = false) Optional<Integer> page) {
         int pageInt = page.orElse(0);
-        Pageable pageable = PageRequest.of(pageInt, 3, Sort.Direction.DESC, "segmentId");
+        Pageable pageable = PageRequest.of(pageInt, 10, Sort.Direction.DESC, "segmentId");
         Page<SegmentEntity> segmentEntities = segmentService.getListSegment(pageable);
 
         Map<String, Object> mapReturn = new HashMap<>();

@@ -48,7 +48,7 @@ public class CustomerMapper {
 
         List<String> categories2 = new ArrayList<>();
         if(customerEntity.getShortHobby() != null){
-            for(String categoryStr: customerEntity.getHobby().split(",")){
+            for(String categoryStr: customerEntity.getShortHobby().split(",")){
                 try {
                     CategoryEntity category = categoryRepository.findByCategoryId(Integer.parseInt(categoryStr.trim()));
                     categories2.add(category.getName());

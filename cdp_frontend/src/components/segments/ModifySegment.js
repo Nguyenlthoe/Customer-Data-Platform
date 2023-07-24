@@ -46,7 +46,7 @@ export function ModifySegment() {
                 }
             })
             .catch((error) => {
-                alert("ERROR")
+                //alert("ERROR")
             });
     }, [])
 
@@ -164,14 +164,14 @@ export function ModifySegment() {
                 console.log(data)
                 if (data.code === 200) {
                     alert("Tạo mới phân khúc thành công");
-                    window.location.href = "/admin/segments"
+                    window.location.href = "/segments"
                 } else {
                     alert("Tạo mới thất bại")
                     console.log(data)
                 }
             })
             .catch((error) => {
-                alert("ERROR");
+                //alert("ERROR");
                 console.log(error)
             });
     }
@@ -180,14 +180,14 @@ export function ModifySegment() {
         <>
             <div className="m-4 p-4 min-h-[90vh] shadow-lg bg-white rounded-xl flex flex-col items-center justify-start space-y-10">
                 <div className="flexbox_center">
-                    <label className="title_1 text-4xl">Thêm phân khúc</label>
+                    <label className="title_1 text-4xl">Cập nhật phân khúc: {segmentId}</label>
                 </div>
                 <div className='flexbox_spacearound m-4 p-4'>
                     <form action="" method="POST" className="container_custom border_red" >
                         <div className="flexbox_inline">
                             <div className="flex_3 flex_column text-base shadow-xl">
                                 <div className="flexbox_spacearound margin_left20 py-4">
-                                    <input className="title_input" type="text" name="title" id="" placeholder='Tên phân khúc'
+                                    <input className="title_input margin_left20" type="text" name="title" id="" placeholder='Tên phân khúc'
                                         value={title} required
                                         onChange={(e) => setTitle(e.target.value)} />
                                 </div>

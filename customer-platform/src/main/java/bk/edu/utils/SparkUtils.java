@@ -67,6 +67,7 @@ public class SparkUtils implements Serializable{
 
     public Dataset<Row> getTableDataframe(String tableName){
         Dataset<Row> df = session.read().format("jdbc")
+                .option("numPartitions", "8")
                 .option("driver","com.mysql.cj.jdbc.Driver")
                 .option("url", "jdbc:mysql://" + Config.MYSQL.HOST + "/" + Config.MYSQL.DBNAME)
                 .option("dbtable", tableName)

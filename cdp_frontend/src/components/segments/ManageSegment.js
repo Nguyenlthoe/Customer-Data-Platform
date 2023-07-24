@@ -45,7 +45,7 @@ export function ManageSegment() {
                 }
             })
             .catch((error) => {
-                alert("ERROR")
+                //alert("ERROR")
             });
     }
 

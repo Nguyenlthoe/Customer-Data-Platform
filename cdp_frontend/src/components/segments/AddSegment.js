@@ -3,6 +3,7 @@ import { useState } from 'react';
 import * as API from './../../constants/api_config'
 import * as CONFIG from './../../constants/config'
 import './Segment.css'
+import { Button } from '@mui/material';
 var conditionSize = 0;
 export function AddSegment(){
     const [conditions, setConditions] = useState([])
@@ -77,35 +78,36 @@ export function AddSegment(){
                 console.log(data)
                 if (data.code === 200) {
                     alert("Tạo mới phân khúc thành công");
+                    window.location.href = "/segments"
                 } else {
                     alert("Tạo mới thất bại")
-                    window.location.href = "/admin/segments"
                     console.log(data)
                 }
             })
             .catch((error) => {
-                alert("ERROR");
+                //alert("ERROR");
                 console.log(error)
             });
     }
 
     return (
         <>
+            <div className="m-4 p-4 min-h-[90vh] shadow-lg bg-white rounded-xl flex flex-col items-center justify-start space-y-10">
             <div className="flexbox_center">
-                <label className="title_1">Thêm phân khúc</label>
+                <label className="title_1 text-4xl">Thêm phân khúc</label>
             </div>
-            <div className='flexbox_spacearound'>
+            <div className='flexbox_spacearound m-4 p-4'>
                 <form action="" method="POST" className="container_custom border_red" >
                     <div className="flexbox_inline">
-                        <div className="flex_3 flex_column">
-                            <div className="flexbox_spacearound margin_left20">
-                                <input className="title_input" type="text" name="title" id="" placeholder='Tên phân khúc'
+                        <div className="flex_3 flex_column text-base shadow-xl">
+                            <div className="flexbox_spacearound margin_left20 py-4">
+                                <input className="title_input margin_left20" type="text" name="title" id="" placeholder='Tên phân khúc'
                                     value={title} required
                                     onChange={(e) => setTitle(e.target.value)} />
                             </div>
                             <div id="conditions_input margin_left20">
                                 {conditions.map((condition) => (
-                                    <div className="flexbox_spacearound" id={condition.id} key={condition.id}>
+                                    <div className="flexbox_spacearound py-4" id={condition.id} key={condition.id}>
                                         <input className="item_flex3 margin_left20 title_input" type="text" name="title" id="" placeholder='Trường'
                                         />
                                         <div className="flexbox_horizol">
@@ -128,7 +130,7 @@ export function AddSegment(){
                                         </div>
                                         <input type="text" id={"value" + condition.id} className="item_flex7 margin_left20 title_input" name="value" placeholder='Giá trị'
                                         />
-                                        {<button type="button" className=" btn_height30 btn" onClick={() => handleRemoveCondition(condition.id)}>Xoá điều kiện</button>}
+                                        {<button type="button" className=" btn_height30 btn !w-40 !mx-4" onClick={() => handleRemoveCondition(condition.id)}>Xoá điều kiện</button>}
                                     </div>
                                 ))}
                             </div>
@@ -137,9 +139,10 @@ export function AddSegment(){
                     </div>
                 </form>
             </div>
-            <div className='flexbox_spacearound'>
-                <button className="btn margin_top20" onClick={handleAddCondition}>Thêm điều kiện</button>
-                <button className="btn margin_top20" onClick={handleAddSegment}>Tạo mới phân khúc</button>
+            <div className='flexbox_spacearound flex w-full items-start justify-start space-x-2 ml-8'>
+                                <Button variant='contained' className="w-56 text-xl" onClick={handleAddCondition}>Thêm điều kiện</Button>
+                                <Button variant='contained' className="w-56 text-xl" onClick={handleAddSegment}>Cập nhật phân khúc</Button>
+                            </div>
             </div>
         </>
     )

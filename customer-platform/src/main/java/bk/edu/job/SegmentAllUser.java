@@ -56,7 +56,7 @@ public class SegmentAllUser implements Serializable {
 
         System.out.println("Number user process: " + df.count());
         df.show();
-        Dataset<Row> finalDf = df;
+        Dataset<Row> finalDf = df.repartition(8);
         Long timeStart2 = System.currentTimeMillis();
         finalDf.persist(StorageLevel.MEMORY_ONLY());
         segments.forEach(segmentInfo -> {
