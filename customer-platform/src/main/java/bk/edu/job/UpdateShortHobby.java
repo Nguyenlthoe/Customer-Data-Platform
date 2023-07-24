@@ -14,9 +14,9 @@ import java.util.Set;
 import static org.apache.spark.sql.functions.col;
 
 public class UpdateShortHobby {
-    public void process(){
+    public void process(boolean log){
         System.out.println("Start update short hobbies");
-        SparkUtils sparkUtil = new SparkUtils("update short hobby", true, true);
+        SparkUtils sparkUtil = new SparkUtils("update short hobby", log, true);
 
         long start = System.currentTimeMillis();
         MySqlUtils mySqlUtils = new MySqlUtils();
@@ -44,6 +44,10 @@ public class UpdateShortHobby {
     }
     public static void main(String args[]){
         UpdateShortHobby updateShortHobby = new UpdateShortHobby();
-        updateShortHobby.process();
+        boolean log = true;
+        if(args[0].equals("false")){
+            log = false;
+        }
+        updateShortHobby.process(log);
     }
 }

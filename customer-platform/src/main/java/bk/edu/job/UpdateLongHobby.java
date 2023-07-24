@@ -20,11 +20,15 @@ public class UpdateLongHobby implements Serializable {
 
     public static void main(String args[]){
         UpdateLongHobby updateLongHobby = new UpdateLongHobby();
-        updateLongHobby.process();
+        boolean log = true;
+        if(args[0].equals("false")){
+            log = false;
+        }
+        updateLongHobby.process(log);
     }
 
-    public void process(){
-        SparkUtils sparkUtil = new SparkUtils("update long hobby", true, true);
+    public void process(boolean log){
+        SparkUtils sparkUtil = new SparkUtils("update long hobby", log, true);
         System.out.println("Start updating long hobbies");
         long start = System.currentTimeMillis();
         Dataset<Row> df = sparkUtil.getTableDataframe("bookshop_customer");
