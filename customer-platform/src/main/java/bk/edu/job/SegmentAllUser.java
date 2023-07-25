@@ -80,7 +80,7 @@ public class SegmentAllUser implements Serializable {
             List<SegmentInfo> segments = mySqlUtils.getAllSegment();
             long timeEnd = System.currentTimeMillis();
             Dataset<Row> df = sparkUtils.getTableDataframe("bookshop_customer");
-            df = df.filter(col("updated_at").$greater$eq(new Date(timeStart)));
+            df = df.filter(col("updated_at").$greater$eq(new Timestamp(timeStart)));
             df.show();
 
             System.out.println("Number user process: " + df.count());
