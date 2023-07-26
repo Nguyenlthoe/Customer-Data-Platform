@@ -1,6 +1,5 @@
 package bk.edu.job;
 
-import bk.edu.utils.ElasticUtils;
 import bk.edu.utils.MySqlUtils;
 import bk.edu.utils.SparkUtils;
 import bk.edu.utils.TimeUtils;
@@ -10,7 +9,6 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.storage.StorageLevel;
 
 import java.sql.Timestamp;
-import java.util.Set;
 
 import static org.apache.spark.sql.functions.col;
 

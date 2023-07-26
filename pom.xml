@@ -11,6 +11,7 @@
     <modules>
         <module>book-shop</module>
         <module>customer-platform</module>
+        <module>cdp-job</module>
     </modules>
 
 

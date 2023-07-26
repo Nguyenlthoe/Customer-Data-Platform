@@ -1,15 +1,12 @@
 package bk.edu.job;
 
 import bk.edu.config.ProvinceCode;
-import bk.edu.data.response.dto.ProvinceDto;
 import bk.edu.utils.MySqlUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mifmif.common.regex.Generex;
 
-import java.sql.*;
 import java.sql.Date;
+import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -103,7 +100,7 @@ public class VietnameseNameGenerator {
         // Kết hợp các phần tên để tạo tên đầy đủ
         String fullName = firstName + " " + middleName + " " + lastName;
         // In ra tên người Việt sinh ngẫu nhiên
-        System.out.println("Tên người Việt: " + fullName);
+        //System.out.println("Tên người Việt: " + fullName);
 
         UserInfo user = new UserInfo();
         user.name = fullName;
@@ -115,11 +112,14 @@ public class VietnameseNameGenerator {
                 + removeAccent(firstName + middleName).toLowerCase()
                 + new SimpleDateFormat("yyyyddMM").format(new Date(user.birthday))
                 + "@gmail.com";
-        Generex generex = new Generex("(0)(3[2-9]5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}");
+        Generex generex = new Generex("(0)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}");
 
         generex.getMatchedString(2);
         user.phoneNumber = generex.random();
-
+        while (user.phoneNumber.contains("|")){
+            user.phoneNumber = generex.random();
+        }
+        System.out.println(user.phoneNumber);
         user.provideCode = ProvinceCode.provinceCode[random.nextInt(63)];
 
         return user;
@@ -183,5 +183,11 @@ public class VietnameseNameGenerator {
             users.add(vietnameseNameGenerator.generateUser());
         }
         vietnameseNameGenerator.insertUser(users);
+//        VietnameseNameGenerator vietnameseNameGenerator = new VietnameseNameGenerator();
+//        MySqlUtils mySqlUtils = new MySqlUtils();
+////        Set<Integer> users = mySqlUtils.getListUser();
+////        mySqlUtils.updateNumberPhone(users);
+//        mySqlUtils.updateEmail();
+//        mySqlUtils.close();
     }
 }

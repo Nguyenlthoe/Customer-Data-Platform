@@ -16,7 +16,6 @@ import java.io.Serializable;
 import java.sql.*;
 import java.util.Iterator;
 import java.util.List;
-import java.sql.Date;
 
 import static org.apache.spark.sql.functions.col;
 

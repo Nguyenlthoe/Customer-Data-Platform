@@ -5,9 +5,14 @@ import bk.edu.data.model.ConditionInfo;
 import bk.edu.data.model.SegmentInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mifmif.common.regex.Generex;
+import org.apache.commons.lang3.StringUtils;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class MySqlUtils {
 
@@ -24,6 +29,15 @@ public class MySqlUtils {
     }
 
     public Connection getConnection(){
+        if(mysqlConnection == null){
+            try {
+                mysqlConnection = DriverManager.getConnection("jdbc:mysql://" + Config.MYSQL.HOST + "/" +
+                        Config.MYSQL.DBNAME,
+                    Config.MYSQL.USER, Config.MYSQL.PASSWORD);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
         return this.mysqlConnection;
     }
 
@@ -42,6 +56,42 @@ public class MySqlUtils {
 
         }
         return userIds;
+    }
+
+    public Set<Integer> getListUser(){
+        Set<Integer> userIds = new HashSet<>();
+        String sql = "SELECT * FROM bookshop_customer";
+        try {
+            PreparedStatement preparedStatement = mysqlConnection.prepareStatement(sql);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()){
+                int userId = rs.getInt("user_id");
+                userIds.add(userId);
+            }
+        } catch (SQLException e) {
+
+        }
+        return userIds;
+    }
+
+    public void updateEmail(){
+        String sql = "SELECT * FROM bookshop_customer where email like '%ỳ%'";
+        String updateSql = "UPDATE `bookshop_customer` SET `email` = ? WHERE (`user_id` = ? );";
+        try {
+            PreparedStatement preparedStatement = mysqlConnection.prepareStatement(sql);
+            PreparedStatement prepareStatement2 = mysqlConnection.prepareStatement(updateSql);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()){
+                int userId = rs.getInt("user_id");
+                String email = rs.getString("email");
+                email = email.replaceAll("ỳ", "y");
+                prepareStatement2.setString(1, email);
+                prepareStatement2.setInt(2, userId);
+                prepareStatement2.executeUpdate();
+            }
+        } catch (SQLException e) {
+
+        }
     }
 
     public void deleteOldHobby(){
@@ -220,9 +270,99 @@ public class MySqlUtils {
     public void close() {
         try {
             mysqlConnection.close();
+            mysqlConnection = null;
             System.out.println("close mysql");
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void updateShortHobbies(List<Integer> userIds) {
+        String selectSql = "SELECT * FROM cdp_customer_category_association where user_id = ? ;\n";
+        String updateSql = "UPDATE `bookshop_customer` SET `short_hobbies` = ? WHERE (`user_id` = ? );\n";
+        try {
+            PreparedStatement preparedStatementUpdate = mysqlConnection.prepareStatement(updateSql);
+            PreparedStatement preparedStatementSelect = mysqlConnection.prepareStatement(selectSql);
+
+            userIds.forEach(userId -> {
+                try {
+                    preparedStatementSelect.setInt(1, userId);
+                    ResultSet rs = preparedStatementSelect.executeQuery();
+                    List<Integer> categoryIds = new ArrayList<>();
+                    while (rs.next()){
+                        categoryIds.add(rs.getInt("category_id"));
+                    }
+                    String categoryShort =" " + StringUtils.join(categoryIds, " , ") + " ";
+                    preparedStatementUpdate.setString(1, categoryShort);
+                    preparedStatementUpdate.setInt(2, userId);
+                    preparedStatementUpdate.executeUpdate();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (SQLException e) {
+            System.err.println("Insert failed");
+        }
+    }
+
+    public void updateShortHobbies(int userId) {
+        String selectSql = "SELECT * FROM cdp_customer_category_association where user_id = ? ;\n";
+        String updateSql = "UPDATE `bookshop_customer` SET `short_hobbies` = ? WHERE (`user_id` = ? );\n";
+        try {
+            PreparedStatement preparedStatementUpdate = mysqlConnection.prepareStatement(updateSql);
+            PreparedStatement preparedStatementSelect = mysqlConnection.prepareStatement(selectSql);
+
+            preparedStatementSelect.setInt(1, userId);
+            ResultSet rs = preparedStatementSelect.executeQuery();
+            List<Integer> categoryIds = new ArrayList<>();
+            while (rs.next()){
+                categoryIds.add(rs.getInt("category_id"));
+            }
+            String categoryShort =" " + StringUtils.join(categoryIds, " , ") + " ";
+            preparedStatementUpdate.setString(1, categoryShort);
+            preparedStatementUpdate.setInt(2, userId);
+            preparedStatementUpdate.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Insert failed");
+        }
+    }
+
+    public void insertLongHobbies(Integer userId, String longHobbies) {
+        String updateSql = "UPDATE `bookshop_customer` SET `long_hobbies` = ? WHERE (`user_id` = ? );\n";
+        try {
+            PreparedStatement preparedStatementUpdate = mysqlConnection.prepareStatement(updateSql);
+
+            preparedStatementUpdate.setString(1, longHobbies);
+            preparedStatementUpdate.setInt(2, userId);
+            preparedStatementUpdate.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Insert failed");
+        }
+    }
+
+    public void updateNumberPhone(Set<Integer> users) {
+        String updateSql = "UPDATE `bookshop_customer` SET `phone_number` = ? WHERE (`user_id` = ? );\n";
+        try {
+            PreparedStatement preparedStatementUpdate = mysqlConnection.prepareStatement(updateSql);
+            Generex generex = new Generex("(0)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}");
+
+            generex.getMatchedString(2);
+            users.forEach(userId -> {
+                try {
+
+                    String phoneNumber = generex.random();
+                    while (phoneNumber.contains("|")){
+                        phoneNumber = generex.random();
+                    }
+                    preparedStatementUpdate.setString(1, phoneNumber);
+                    preparedStatementUpdate.setInt(2, userId);
+                    preparedStatementUpdate.executeUpdate();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (SQLException e) {
+            System.err.println("Insert failed");
         }
     }
 }

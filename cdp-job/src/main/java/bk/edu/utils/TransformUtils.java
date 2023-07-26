@@ -1,18 +1,15 @@
 
 package bk.edu.utils;
 
+import bk.edu.config.ConditionConfig;
+import bk.edu.config.Config;
 import bk.edu.data.model.ConditionInfo;
-import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import bk.edu.config.*;
 
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 import static org.apache.spark.sql.functions.*;
-
 import static org.apache.spark.sql.functions.col;
 
 public class TransformUtils {

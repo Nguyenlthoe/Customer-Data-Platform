@@ -1,13 +1,10 @@
 package bk.edu.job;
 
 import bk.edu.config.Config;
-import bk.edu.data.model.BookContext;
-import bk.edu.data.model.EventKafka;
 import bk.edu.data.model.MyEvent;
 import bk.edu.utils.MySqlUtils;
 import bk.edu.utils.SparkUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.ForeachPartitionFunction;
 import org.apache.spark.api.java.function.MapPartitionsFunction;
@@ -26,16 +23,15 @@ import org.apache.spark.streaming.kafka010.KafkaUtils;
 import org.apache.spark.streaming.kafka010.LocationStrategies;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.jmx.export.naming.IdentityNamingStrategy;
-import scala.Serializable;
-import scala.Tuple2;
-import static org.apache.spark.sql.functions.col;
-import java.net.URL;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import static org.apache.spark.sql.functions.col;
 
 public class HandleEventStreaming {
     private StructType structType = new StructType(new StructField[]{
