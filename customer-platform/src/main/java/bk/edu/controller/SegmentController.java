@@ -81,6 +81,18 @@ public class SegmentController {
         return ResponseEntity.ok(response);
     }
 
+    @RequestMapping(value = "/api/v1/segment/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteSegment(@PathVariable(value = "id") int segmentId) {
+        segmentService.deleteSegment(segmentId);
+
+        MyResponse response = MyResponse
+            .builder()
+            .buildCode(200)
+            .buildMessage("Successfully")
+            .get();
+        return ResponseEntity.ok(response);
+    }
+
     @RequestMapping(value = "/api/v1/segment", method = RequestMethod.GET)
     public ResponseEntity<?> getListSegment(@RequestParam(value = "page", required = false) Optional<Integer> page) {
         int pageInt = page.orElse(0);

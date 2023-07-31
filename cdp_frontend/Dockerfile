@@ -7,7 +7,7 @@ WORKDIR /cdp_frontend/
 
 ADD . /cdp_frontend/
 
-RUN "cd cdp_frontend && npm i"
+RUN npm i
 
 ENTRYPOINT [ "npm", "start" ]
 

@@ -66,7 +66,7 @@ export function ManageSegment() {
     }
 
     function handleUpdate(index) {
-        window.location.href = "/admin/modifysegment/" + index
+        window.location.href = "/admin/modify-segment/" + index
     }
 
     function handleAdd() {

@@ -87,4 +87,13 @@ public class SegmentService {
         Page<SegmentEntity> segmentEntities = segmentRepository.findAllByIsDeleted(0, pageable);
         return segmentEntities;
     }
+
+	public void deleteSegment(int segmentId) {
+        SegmentEntity segmentEntity = segmentRepository.findBySegmentIdAndIsDeleted(segmentId, 0);
+        if(segmentEntity == null){
+            throw new RequestInvalid("SegmentId not found");
+        }
+        segmentEntity.setIsDeleted(1);
+        segmentRepository.saveAndFlush(segmentEntity);
+	}
 }

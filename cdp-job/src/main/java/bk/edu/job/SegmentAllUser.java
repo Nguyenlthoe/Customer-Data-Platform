@@ -78,13 +78,14 @@ public class SegmentAllUser implements Serializable {
             MySqlUtils mySqlUtils = new MySqlUtils();
             List<SegmentInfo> segments = mySqlUtils.getAllSegment();
             long timeEnd = System.currentTimeMillis();
-            Dataset<Row> df = sparkUtils.getTableDataframe("bookshop_customer");
+            Dataset<Row> df = sparkUtils.getTableDataframe("bookshop_customer").repartition(8);
+            System.out.println(timeStart);
             df = df.filter(col("updated_at").$greater$eq(new Timestamp(timeStart)));
             df.show();
 
             System.out.println("Number user process: " + df.count());
             Long timeStart1 = System.currentTimeMillis();
-            Dataset<Row> finalDf = df.repartition(8);
+            Dataset<Row> finalDf = df;
             finalDf.persist(StorageLevel.MEMORY_ONLY());
             segments.forEach(segmentInfo -> {
                 System.out.println(segmentInfo.getSegmentId());
@@ -97,7 +98,7 @@ public class SegmentAllUser implements Serializable {
             System.out.println("Total time process: " + (System.currentTimeMillis() - timeEnd) / 1000 + "S");
             timeStart = timeEnd;
             try {
-                Thread.sleep(60 * 1000);
+                Thread.sleep(30 * 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 System.out.println("Interrupt by sleep");
