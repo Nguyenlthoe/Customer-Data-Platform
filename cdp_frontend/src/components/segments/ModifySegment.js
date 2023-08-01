@@ -176,41 +176,6 @@ export function ModifySegment() {
             });
     }
 
-    function handleDeleteSegment() {
-        let choice = window.confirm("Bạn có chắc chắn xóa!");
-        if (choice == true) {
-            const url = API.DOMAIN + API.SEGMENT + "/" + segmentId;
-            fetch(url, {
-                method: 'DELETE',
-                headers: {
-                    'accept': '*/*',
-                    'Content-Type': 'application/json',
-                },
-                credentials: "same-origin"
-            })
-                .then(response => {
-                    return response.json()
-                })
-                .then(data => {
-
-                    console.log(data)
-                    if (data.code === 200) {
-                        alert("Xóa phân khúc thành công");
-                        window.location.href = "/segments"
-                    } else {
-                        alert("Xóa thất bại")
-                        console.log(data)
-                    }
-                })
-                .catch((error) => {
-                    //alert("ERROR");
-                    console.log(error)
-                });
-        } else {
-
-        }
-
-        }
 
     return (
         <>
@@ -270,7 +235,6 @@ export function ModifySegment() {
                 <div className='flexbox_spacearound flex w-full items-start justify-start space-x-2 ml-8'>
                     <Button variant='contained' className="w-56 text-xl" onClick={handleAddCondition}>Thêm điều kiện</Button>
                     <Button variant='contained' className="w-56 text-xl" onClick={handleUpdateSegment}>Cập nhật phân khúc</Button>
-                    <Button variant='contained' className="w-56 text-xl" onClick={handleDeleteSegment}>Xóa phân khúc</Button>
                 </div>
             </div>
         </>

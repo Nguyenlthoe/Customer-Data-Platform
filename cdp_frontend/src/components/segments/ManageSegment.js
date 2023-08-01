@@ -2,7 +2,8 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import * as API from './../../constants/api_config'
 import * as CONFIG from './../../constants/config'
-import { Button } from '@mui/material'
+import { Button, colors } from '@mui/material'
+// import {DeleteIcon} from '@mui/icons-material';
 
 import './Segment.css'
 var nextPage = false;
@@ -73,6 +74,42 @@ export function ManageSegment() {
             window.location.href = "/admin/add-segment/"
     }
 
+    function handleDeleteSegment(segmentId) {
+        let choice = window.confirm("Bạn có chắc chắn xóa!");
+        if (choice == true) {
+            const url = API.DOMAIN + API.SEGMENT + "/" + segmentId;
+            fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'accept': '*/*',
+                    'Content-Type': 'application/json',
+                },
+                credentials: "same-origin"
+            })
+                .then(response => {
+                    return response.json()
+                })
+                .then(data => {
+
+                    console.log(data)
+                    if (data.code === 200) {
+                        alert("Xóa phân khúc thành công");
+                        window.location.href = "/segments"
+                    } else {
+                        alert("Xóa thất bại")
+                        console.log(data)
+                    }
+                })
+                .catch((error) => {
+                    //alert("ERROR");
+                    console.log(error)
+                });
+        } else {
+
+        }
+
+        }
+
     return (
         <div className="m-4 p-4 min-h-[90vh] shadow-lg bg-white rounded-xl flex flex-col items-center justify-start space-y-10">
             <div className="overview">
@@ -94,6 +131,7 @@ export function ManageSegment() {
                                 <th className='p-2'>Thời gian cập nhật</th>
                                 <th className='p-2'></th>
                                 <th className='p-2'></th>
+                                <th className='p-2'></th>
                             </tr>
                         </thead>
 
@@ -107,8 +145,12 @@ export function ManageSegment() {
                                             <td className='p-2 border' style={{ width: '10em' }}>  {segment.conditions.length}</td>
                                             <td className='p-2 border' style={{ width: '15em' }}>{segment.createdAt}</td>
                                             <td className='p-2 border' style={{ width: '15em' }}>{segment.updatedAt}</td>
-                                            <td className='p-2' style={{ width: '7em' }}><Button variant='outlined' className="w-24" onClick={() => { handleViewDetail(segment.segmentId) }}>Chi tiết</Button></td>
-                                            <td className='p-2' style={{ width: '7em' }}><Button variant='outlined' className="w-24" onClick={() => { handleUpdate(segment.segmentId) }}>Cập nhật</Button></td>
+
+                                            <td className='p-2' style={{ width: '3em' }}><div onClick={() => handleViewDetail(segment.segmentId)}><i className="fa-solid fa-circle-info" style={{color: "#3c82fb"}}></i></div></td>
+                                            <td className='p-2' style={{ width: '3em' }}><div onClick={() => handleUpdate(segment.segmentId)}><i className="fas fa-edit" style={{color: "#fbe032"}}></i></div></td>
+                                            <td className='p-2' style={{ width: '3em' }}><div onClick={() => handleDeleteSegment(segment.segmentId)}><i className="fa-solid fa-trash" style={{color: "#e65151"}}></i></div></td>
+                                            {/* <td className='p-2' style={{ width: '7em' }}><Button variant='outlined' className="w-24" onClick={() => { handleUpdate(segment.segmentId) }}>Cập nhật</Button></td> */}
+                                            {/* <td className='p-2' style={{ width: '7em' }}><Button variant='outlined' endIcon={<DeleteIcon />} className="w-24" onClick={() => { handleDeleteSegment(segment.segmentId) }}>Xoá</Button></td> */}
                                         </tr>
                                     )
                                 })

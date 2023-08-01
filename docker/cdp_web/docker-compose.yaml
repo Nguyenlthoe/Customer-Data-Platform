@@ -1,0 +1,28 @@
+services:
+  cdp-frontend:
+    image: nguyenlthoe/cdp_frontend:0.0.4
+    container_name:  cdp-frontend
+    # restart: always
+    environment:
+      - REACT_APP_BACKEND_HOST=52.231.108.82
+    depends_on:
+      - cdp-backend
+    ports:
+      - 3100:3100
+    networks:
+      cdpnetwork:
+        ipv4_address: 172.25.0.9
+  cdp-backend:
+    image: nguyenlthoe/cdp_backend:0.0.5
+    container_name: cdp-backend
+    # restart: always
+    #    environment:
+    #      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/customer-data-platform
+    ports:
+      - 8280:8280
+    networks:
+      - cdpnetwork
+networks:
+  cdpnetwork:
+    external:
+      name: custom_network
