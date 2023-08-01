@@ -1,33 +1,17 @@
 # Customer-Data-Platform
 
-## Hướng dẫn sử dụng backend, cd vào module book-shop nhé ae:
-+ B1: Clone Repo
-+ B2: Cài đặt mysql trên máy, 
-+ B3: Tạo database tên: `customer-data-platform`
-+ B4: Tạo user cấp quyền truy cập cho data base trên 
-+ B5: vào file có đường dẫn src/main/resources/application.properties, chỉnh sửa user, password vừa tạo
-+ B6: Dòng 23 file trên, khởi chạy lần đầu nên bỏ comment, nó sẽ tự tạo các bảng như phần Entity đã cấu hình, 
-lưu ý: sau khi chạy lần đầu nên comment lại hoặc đổi create thành validate,
-nếu không, nó sẽ tạo lại bảng và xóa hết dữ liệu
-+ B6: Ch
-+ B7: chạy test thử vài api trên swagger: http://localhost:8180/swagger-ui.html#
-
-## Hướng dẫn cài đặt phần segment:
-
-+ Khởi chạy cụm spark-yarn docker và mysql docker (ae thử thay thể mysql ở local xem sao, thử đổi địa chỉ mysql trong application.properties là 172.25.0.1 nhé, class MySqlUtils nữa)
-+ Start cụm spark-yarn đọc ở readme.md trong thư mục dojcker/spark-yarn
-+ API service phần customer-platform có port 8280
-+ Đóng gói class: `cd customer-data-platform` sau đó ` mvn clean compile assembly:single` ta sẽ có được file jar ở thư mục target 
-+ Đưa lên container docker hadoop-master:/ `docker cp linktojar hadoop-master:/`
-+ Tạo tài khoản admin(insert vào bảng cdp_admin nhé)
-+ Sinh ngẫu nhiên các tập người dùng: Chạy class VietnamseNameGenerator(Đang để 1000 thì phải)
-+ Tạo segment và chạy thử: api post segment, vô swagger coi thử nhé `(birthday ứng với datetime, province_code ứng với integer, gender ứng với interger)` Các toán tử trong class `config/ConditionConfig`
-+ Chạy tất cả segment với tất cả user: `spark-submit --master yarn --deploy-mode client --class bk.edu.job.SegmentAllUser customer-platform-2.2.7.RELEASE-jar-with-dependencies.jar all`
-+ Chạy những segment tạo mới, hoặc có sự cập nhật: `spark-submit --master yarn --deploy-mode client --class bk.edu.job.SegmentAllUser customer-platform-2.2.7.RELEASE-jar-with-dependencies.jar new`
-+ Chạy những user mới cập nhật: `spark-submit --master yarn --deploy-mode client --class bk.edu.job.SegmentAllUser customer-platform-2.2.7.RELEASE-jar-with-dependencies.jar update`
-
-## NOTE linh tinh
-Trigger up
+## Hướng dẫn cài đặt
+Các cài đặt sử dụng docker
++ Sử dụng docker. Các file cài đặt docker được build sẵn ở thư mục docker.
++ Có thể thực hiện cài đặt cấu hình địa chỉ các máy chủ ở các file theo từng module. 
++ bk.edu.config.Config cho các địa chỉ Kafka, Elastic Search, Airflow
++ resources/application.properties cấu hình địa chỉ cơ sở dữ liệu MySQL
++ constants/api_config cấu hình địa chỉ máy chủ backend module cdp_frontend
++ Cài đặt cụm hadoop-spark 
++ Cài đặt airflow kết nối với cụm Hadoop-Spark sử dụng kết nối ssh.
++ Các file Dag có sẵn ở phần docker
++ Tạo trigger cập nhật trường updated_time cho bảng dữ liệu người dùng.
++ Cài đặt module thu thập dữ liệu gồm snowplow, website tracking sự kiện người dùng.
 ```
 use `customer-data-platform`;
 DELIMITER $$
@@ -38,3 +22,17 @@ BEGIN SET new.updated_at = now();
  END $$
 DELIMITER ;
 ```
+## Hướng dẫn cài đặt phần segment:
+
++ Đóng gói mã nguồn: `cd cdp-job` sau đó ` mvn clean compile assembly:single` ta sẽ có được file jar ở thư mục target 
++ Đưa lên container docker hadoop-master:/ `docker cp linktojar hadoop-master:/`
++ Sinh ngẫu nhiên các tập người dùng: Chạy class VietnamseNameGenerator ở phần cdp-job(Có thể sửa số lượng user muốn sinh)
++ Tạo segment sử dụng website cdp ở port 3100.
++ Chạy tất cả segment với tất cả user: `spark-submit --master yarn --deploy-mode client --class bk.edu.job.SegmentAllUser cdp-job-1.0-SNAPSHOT-jar-with-dependencies.jar all false`
++ Chạy những segment tạo mới, hoặc có sự cập nhật: `spark-submit --master yarn --deploy-mode client --class bk.edu.job.SegmentAllUser cdp-job-1.0-SNAPSHOT-jar-with-dependencies.jar new false`
++ Chạy những user mới cập nhật(chạy liên tục không dừng, có thể chỉ định deploy-mode là cluster): `spark-submit --master yarn --deploy-mode client --class bk.edu.job.SegmentAllUser cdp-job-1.0-SNAPSHOT-jar-with-dependencies.jar update false`
++ Cập nhật sở thích ngắn hạn: `spark-submit --master yarn --deploy-mode client --class bk.edu.job.UpdateShortHobbies cdp-job-1.0-SNAPSHOT-jar-with-dependencies.jar new false`
++ Cập nhật sở thích dài hạn: `spark-submit --master yarn --deploy-mode client --class bk.edu.job.UpdateLongHobbies cdp-job-1.0-SNAPSHOT-jar-with-dependencies.jar false`
++ Chạy chương trình streaming xử lý sở thích ngắn hạn: `spark-submit --master yarn --deploy-mode client --class bk.edu.job.SegmentAllUser cdp-job-1.0-SNAPSHOT-jar-with-dependencies.jar false hobby HandleUpdateShortHobbies`
++ Chạy chương trình streaming xử lý sự kiện xem sách: `spark-submit --master yarn --deploy-mode client --class bk.edu.job.SegmentAllUser cdp-job-1.0-SNAPSHOT-jar-with-dependencies.jar false view HandleUpdateView`
+
