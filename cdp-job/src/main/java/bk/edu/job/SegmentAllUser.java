@@ -162,12 +162,31 @@ public class SegmentAllUser implements Serializable {
     }
 
     public void deleteAssociation(Dataset<Row> df){
-        df.foreachPartition(new ForeachPartitionFunction<Row>() {
-            @Override
-            public void call(Iterator<Row> rows) throws Exception {
+        df.foreachPartition((ForeachPartitionFunction<Row>) rows -> {
+            String selectSql = "SELECT * FROM cdp_segment_customer_association WHERE user_id = ? ;";
+            String deleteSql = "DELETE FROM cdp_segment_customer_association WHERE (`user_id` = ? and `segment_id` = ? );";
+            MySqlUtils mySqlUtil = new MySqlUtils();
+            Connection mysqlConnection = mySqlUtil.getConnection();
+            PreparedStatement selectP = mysqlConnection.prepareStatement(selectSql);
+            PreparedStatement deleteP = mysqlConnection.prepareStatement(deleteSql);
+            while (rows.hasNext()){
+                Row row = rows.next();
+                int user_id = row.getInt(0);
 
+                deleteP.setInt(1, user_id);
+                selectP.setInt(1, user_id);
+                ResultSet rs = selectP.executeQuery();
+                while (rs.next()){
+                    Timestamp timestamp = rs.getTimestamp("updated_at");
+                    if (timestamp.getTime() < timeNow){
+                        int segment_id = rs.getInt("segment_id");
+                        deleteP.setInt(2, segment_id);
+                        deleteP.executeUpdate();
+                    }
+                }
 
             }
+            mysqlConnection.close();
         });
     }
 
