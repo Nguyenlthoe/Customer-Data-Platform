@@ -40,8 +40,8 @@ public class HandleEventStreaming {
 
     private SparkUtils sparkUtils;
 
-    public HandleEventStreaming(boolean log, String name) {
-        this.sparkUtils = new SparkUtils("streaming: " + name, log, true);
+    public HandleEventStreaming(boolean log, String name, int duration) {
+        this.sparkUtils = new SparkUtils("streaming: " + name, log, true, duration);
     }
 
     public static void main(String[] args) {
@@ -50,7 +50,7 @@ public class HandleEventStreaming {
             if(args[0].equals("true")){
                 log = true;
             }
-            HandleEventStreaming matching = new HandleEventStreaming(log, args[2]);
+            HandleEventStreaming matching = new HandleEventStreaming(log, args[2], Integer.valueOf(args[3]));
             matching.run(args[1]); // streaming can throw exception
         } catch (Exception e) {
             e.printStackTrace();

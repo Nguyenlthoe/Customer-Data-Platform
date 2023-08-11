@@ -52,9 +52,9 @@ public class Config {
 
         public static final String PORT = "9200";
 
-        public static final String USER = "";
+        public static final String USER = "elastic";
 
-        public static final String PASSWORD = "";
+        public static final String PASSWORD = "MagicWord";
 
         public static final String TRACKING_INDEX = "tracking_action_product";
     }

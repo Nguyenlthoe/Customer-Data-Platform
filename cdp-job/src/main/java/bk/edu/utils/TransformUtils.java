@@ -7,13 +7,20 @@ import bk.edu.data.model.ConditionInfo;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import static org.apache.spark.sql.functions.*;
 import static org.apache.spark.sql.functions.col;
 
 public class TransformUtils {
     public static Dataset<Row> filterCondition(ConditionInfo condition, Dataset<Row> df){
+        List<String> fields = new ArrayList<>(Arrays.asList(df.columns()));
+        if(!fields.contains(condition.getField())){
+            return df.limit(0);
+        }
         if(condition.getOperator() == ConditionConfig.OperatorConfig.EQUAL
                 && condition.getType() == ConditionConfig.TypeConfig.DATETIME){
             int numYear = Integer.parseInt(condition.getValue());

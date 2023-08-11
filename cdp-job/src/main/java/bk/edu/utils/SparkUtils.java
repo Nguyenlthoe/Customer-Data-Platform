@@ -41,6 +41,18 @@ public class SparkUtils implements Serializable{
         System.out.println("- Create Done!!");
     }
 
+    public SparkUtils(String nameJob, boolean log, boolean master, int duration) {
+//        Logger.getLogger("org").setLevel(Level.OFF);
+//        Logger.getLogger("akka").setLevel(Level.OFF);
+        System.out.println("- Create spark");
+        session = createSparkConfig(nameJob, log, master);
+        sqlContext = session.sqlContext();
+        javaSparkContext = new JavaSparkContext(session.sparkContext());
+        javaStreamingContext = new JavaStreamingContext(javaSparkContext, Durations.seconds(duration));
+
+        System.out.println("- Create Done!!");
+    }
+
     public SparkSession createSparkConfig(String nameJob, boolean log, boolean master) {
         Logger.getLogger("akka").setLevel(Level.OFF);
         if (!log) {

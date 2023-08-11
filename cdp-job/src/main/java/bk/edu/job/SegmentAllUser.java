@@ -7,6 +7,7 @@ import bk.edu.utils.MySqlUtils;
 import bk.edu.utils.SparkUtils;
 import bk.edu.utils.TimeUtils;
 import bk.edu.utils.TransformUtils;
+import org.apache.ivy.ant.IvyExtractFromSources;
 import org.apache.spark.api.java.function.ForeachPartitionFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -37,18 +38,23 @@ public class SegmentAllUser implements Serializable {
             SparkUtils sparkUtil = new SparkUtils("segment all user", log, true);
             segmentAllUser.process(sparkUtil, true);
         } else if (args[0].equals("new")) {
+            MySqlUtils mySqlUtils = new MySqlUtils();
+            List<SegmentInfo> segments = mySqlUtils.getNewSegment(Integer.parseInt(args[2]));
+            mySqlUtils.close();
+            if(segments.isEmpty()){
+                System.out.println("No segment updated");
+                return;
+            }
             SparkUtils sparkUtil = new SparkUtils("segment new, update segments", log, true);
-            segmentAllUser.processNewSegment(sparkUtil);
+            segmentAllUser.processNewSegment(sparkUtil, segments);
         } else {
             SparkUtils sparkUtil = new SparkUtils("segment user updated", log, true);
-            segmentAllUser.processUserUpdated(sparkUtil);
+            int duration = Integer.parseInt(args[2]);
+            segmentAllUser.processUserUpdated(sparkUtil, duration);
         }
     }
 
-    private void processNewSegment(SparkUtils sparkUtil){
-        MySqlUtils mySqlUtils = new MySqlUtils();
-        List<SegmentInfo> segments = mySqlUtils.getNewSegment();
-
+    private void processNewSegment(SparkUtils sparkUtil, List<SegmentInfo> segments){
 
         Long timeStart = System.currentTimeMillis();
         Dataset<Row> df = sparkUtil.getTableDataframe("bookshop_customer");
@@ -67,12 +73,10 @@ public class SegmentAllUser implements Serializable {
         deletedAssociationBySegmentId(segments);
 
         System.out.println("Time process: " + (System.currentTimeMillis() - timeStart2) / 1000 + "s");
-        System.out.println("Total time process: " + (System.currentTimeMillis() - timeStart) / 1000 + "S");
-
-        mySqlUtils.close();
+        System.out.println("Total time process: " + (System.currentTimeMillis() - timeStart) / 1000 + "s");
     }
 
-    private void processUserUpdated(SparkUtils sparkUtils){
+    private void processUserUpdated(SparkUtils sparkUtils, Integer duration){
         long timeStart = System.currentTimeMillis();
         while (true){
             MySqlUtils mySqlUtils = new MySqlUtils();
@@ -91,14 +95,14 @@ public class SegmentAllUser implements Serializable {
                 System.out.println(segmentInfo.getSegmentId());
                 linkSegmentAndUser(segmentInfo, finalDf);
             });
-            deleteAssociation(finalDf);
+            deleteAssociation(finalDf, timeStart);
             finalDf.unpersist();
 
             System.out.println("Time process: " + (System.currentTimeMillis() - timeStart1) / 1000 + "s");
             System.out.println("Total time process: " + (System.currentTimeMillis() - timeEnd) / 1000 + "S");
             timeStart = timeEnd;
             try {
-                Thread.sleep(30 * 1000);
+                Thread.sleep(duration * 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 System.out.println("Interrupt by sleep");
@@ -125,7 +129,7 @@ public class SegmentAllUser implements Serializable {
             linkSegmentAndUser(segmentInfo, finalDf);
         });
 
-        deleteAssociation(df);
+        deleteAssociation(df, timeNow);
         System.out.println(df.count());
         finalDf.unpersist();
 
@@ -161,7 +165,7 @@ public class SegmentAllUser implements Serializable {
         });
     }
 
-    public void deleteAssociation(Dataset<Row> df){
+    public void deleteAssociation(Dataset<Row> df, long timeEnd){
         df.foreachPartition((ForeachPartitionFunction<Row>) rows -> {
             String selectSql = "SELECT * FROM cdp_segment_customer_association WHERE user_id = ? ;";
             String deleteSql = "DELETE FROM cdp_segment_customer_association WHERE (`user_id` = ? and `segment_id` = ? );";
@@ -178,7 +182,7 @@ public class SegmentAllUser implements Serializable {
                 ResultSet rs = selectP.executeQuery();
                 while (rs.next()){
                     Timestamp timestamp = rs.getTimestamp("updated_at");
-                    if (timestamp.getTime() < timeNow){
+                    if (timestamp.getTime() < timeEnd){
                         int segment_id = rs.getInt("segment_id");
                         deleteP.setInt(2, segment_id);
                         deleteP.executeUpdate();
@@ -193,13 +197,17 @@ public class SegmentAllUser implements Serializable {
     private void linkSegmentAndUser(SegmentInfo segmentInfo, Dataset<Row> df){
         Dataset<Row> filterDf = df;
         List<ConditionInfo> conditions = segmentInfo.getConditions();
-        if(conditions.size() == 0){
-        } else {
-            filterDf = TransformUtils.filterCondition(conditions.get(0), df);
-            for(int i = 1; i < conditions.size(); i++){
-                filterDf = TransformUtils.filterCondition(conditions.get(i), filterDf);
+//        if(conditions.size() == 0){
+//        } else {
+//            filterDf = TransformUtils.filterCondition(conditions.get(0), df);
+            for(int i = 0; i < conditions.size(); i++){
+                try {
+                    filterDf = TransformUtils.filterCondition(conditions.get(i), filterDf);
+                } catch (Exception ignore){
+
+                }
             }
-        }
+//        }
         filterDf.select("user_id", "gender", "short_hobbies", "long_hobbies", "birthday", "email").show();
         updateAssociation(segmentInfo.getSegmentId(), filterDf);
     }
