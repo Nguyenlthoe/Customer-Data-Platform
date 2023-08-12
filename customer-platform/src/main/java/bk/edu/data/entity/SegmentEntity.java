@@ -29,6 +29,9 @@ public class SegmentEntity {
     @Column(name = "is_deleted")
     private Integer isDeleted;
 
+    @Column(name = "status")
+    private Integer status;
+
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "admin_id")

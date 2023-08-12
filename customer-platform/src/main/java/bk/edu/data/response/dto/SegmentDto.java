@@ -23,4 +23,6 @@ public class SegmentDto {
     private String createdAt;
 
     private String updatedAt;
+
+    private Integer status;
 }

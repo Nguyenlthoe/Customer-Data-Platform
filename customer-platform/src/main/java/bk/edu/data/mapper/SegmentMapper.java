@@ -21,6 +21,7 @@ public class SegmentMapper {
     public SegmentEntity segmentRequestToEntity(SegmentRequest segmentRequest){
         SegmentEntity segmentEntity = new SegmentEntity();
         segmentEntity.setName(segmentRequest.getName());
+        segmentEntity.setStatus(0);
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             List<ConditionInfo> conditions = conditionRequestListToInfo(segmentRequest.getConditions());
@@ -61,7 +62,7 @@ public class SegmentMapper {
                     new TypeReference<List<ConditionInfo>>(){});
             return new SegmentDto(segmentEntity.getSegmentId(), segmentEntity.getName(),
                     conditions, format.format(segmentEntity.getCreatedAt()),
-                    format.format(segmentEntity.getUpdatedAt()));
+                    format.format(segmentEntity.getUpdatedAt()), segmentEntity.getStatus());
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             throw new RuntimeException(e);

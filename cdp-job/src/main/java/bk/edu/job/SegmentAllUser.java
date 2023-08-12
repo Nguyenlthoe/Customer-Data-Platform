@@ -39,14 +39,16 @@ public class SegmentAllUser implements Serializable {
             segmentAllUser.process(sparkUtil, true);
         } else if (args[0].equals("new")) {
             MySqlUtils mySqlUtils = new MySqlUtils();
-            List<SegmentInfo> segments = mySqlUtils.getNewSegment(Integer.parseInt(args[2]));
-            mySqlUtils.close();
+            List<SegmentInfo> segments = mySqlUtils.getNewSegment();
             if(segments.isEmpty()){
                 System.out.println("No segment updated");
+                mySqlUtils.close();
                 return;
             }
             SparkUtils sparkUtil = new SparkUtils("segment new, update segments", log, true);
             segmentAllUser.processNewSegment(sparkUtil, segments);
+            mySqlUtils.updateStatusSegment(segments);
+            mySqlUtils.close();
         } else {
             SparkUtils sparkUtil = new SparkUtils("segment user updated", log, true);
             int duration = Integer.parseInt(args[2]);

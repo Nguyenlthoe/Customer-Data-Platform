@@ -70,6 +70,7 @@ public class SegmentService {
             throw new RequestInvalid("Segment not found");
         }
         segmentEntity.setName(segmentRequest.getName());
+        segmentEntity.setStatus(0);
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             List<ConditionInfo> conditions = segmentMapper.conditionRequestListToInfo(segmentRequest.getConditions());

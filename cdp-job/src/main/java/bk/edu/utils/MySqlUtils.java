@@ -224,15 +224,12 @@ public class MySqlUtils {
         }
     }
 
-    public List<SegmentInfo> getNewSegment(int minute) {
-        Long time = System.currentTimeMillis() - TimeUtils.A_MINUTE_IN_MILLISECOND * minute;
-        Timestamp timestamp = new Timestamp(time);
+    public List<SegmentInfo> getNewSegment() {
         List<SegmentInfo> segments = new ArrayList<>();
-        String sql = "SELECT segment_id, rule FROM cdp_segment where is_deleted = 0 and updated_at > ?;";
+        String sql = "SELECT segment_id, rule FROM cdp_segment where is_deleted = 0 and `status` = 0;";
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             PreparedStatement preparedStatement = mysqlConnection.prepareStatement(sql);
-            preparedStatement.setTimestamp(1, timestamp);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 Integer segmentId = rs.getInt("segment_id");
@@ -363,6 +360,24 @@ public class MySqlUtils {
             });
         } catch (SQLException e) {
             System.err.println("Insert failed");
+        }
+    }
+
+    public void updateStatusSegment(List<SegmentInfo> segments) {
+        String updateSql = "UPDATE `cdp_segment` SET `status` = 1 WHERE (`segment_id` = ? );\n";
+        try {
+            PreparedStatement preparedStatementUpdate = mysqlConnection.prepareStatement(updateSql);
+            segments.forEach(segmentInfo -> {
+                try {
+                    preparedStatementUpdate.setInt(1, segmentInfo.getSegmentId());
+                    preparedStatementUpdate.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    System.err.println("update failed");
+                }
+            });
+
+        } catch (SQLException e) {
         }
     }
 }
