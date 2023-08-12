@@ -138,25 +138,14 @@ public class SegmentAllUser implements Serializable {
 
     public void deletedAssociationBySegmentId(List<SegmentInfo> segments){
         segments.forEach(segmentInfo -> {
-            String selectSql = "SELECT * FROM cdp_segment_customer_association WHERE segment_id = ? ;";
-            String deleteSql = "DELETE FROM cdp_segment_customer_association WHERE (`segment_id` = ? and `user_id` = ? );";
+            String deleteSql = "DELETE FROM cdp_segment_customer_association WHERE (`segment_id` = ? and `updated_at` < ? );";
             MySqlUtils mySqlUtil = new MySqlUtils();
             Connection mysqlConnection = mySqlUtil.getConnection();
             try {
-                PreparedStatement selectP = mysqlConnection.prepareStatement(selectSql);
                 PreparedStatement deleteP = mysqlConnection.prepareStatement(deleteSql);
-
                 deleteP.setInt(1, segmentInfo.getSegmentId());
-                selectP.setInt(1, segmentInfo.getSegmentId());
-                ResultSet rs = selectP.executeQuery();
-                while (rs.next()){
-                    Timestamp timestamp = rs.getTimestamp("updated_at");
-                    if (timestamp.getTime() < timeNow){
-                        int user_id = rs.getInt("user_id");
-                        deleteP.setInt(2, user_id);
-                        deleteP.executeUpdate();
-                    }
-                }
+                deleteP.setTimestamp(2, new Timestamp(timeNow));
+                deleteP.execute();
             } catch (Exception ignore) {
                 ignore.printStackTrace();
             } finally {
