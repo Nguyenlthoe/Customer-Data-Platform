@@ -95,7 +95,7 @@ public class MySqlUtils {
     }
 
     public void deleteOldHobby(){
-        String sql = "DELETE FROM bookshop_customer_category_association where updated_at <= ?";
+        String sql = "DELETE FROM cdp_customer_category_association where updated_at <= ?";
         try {
             PreparedStatement preparedStatement = mysqlConnection.prepareStatement(sql);
             preparedStatement.setTimestamp(1, new Timestamp(TimeUtils.getDayBefore(Config.DATE_SHORT_HOBBY)));
@@ -103,7 +103,7 @@ public class MySqlUtils {
 
             preparedStatement.close();
         } catch (SQLException e) {
-
+            System.out.println(e);
         }
     }
 

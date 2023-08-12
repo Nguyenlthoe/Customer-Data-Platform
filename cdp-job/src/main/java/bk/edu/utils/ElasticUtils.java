@@ -17,59 +17,59 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ElasticUtils {
-    private final ElasticStorage elasticStore;
+	private final ElasticStorage elasticStore;
 
-    public ElasticUtils() {
-        ElasticStorage elasticStorage = new ElasticStorage();
-        this.elasticStore = elasticStorage;
-    }
+	public ElasticUtils() {
+		ElasticStorage elasticStorage = new ElasticStorage();
+		this.elasticStore = elasticStorage;
+	}
 
-    public String getLongHobby(Integer userId){
-        List<Integer> categories = new ArrayList<>();
-        try {
-        BoolQueryBuilder bool = QueryBuilders.boolQuery();
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        bool.must(QueryBuilders.termQuery("user_id", userId));
+	public String getLongHobby(Integer userId) {
+		List<Integer> categories = new ArrayList<>();
+		try {
+			BoolQueryBuilder bool = QueryBuilders.boolQuery();
+			SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+			bool.must(QueryBuilders.termQuery("user_id", userId));
 
-        Script script = new
-                Script("doc['product.category_id']");
-        sourceBuilder.size(0);
-        sourceBuilder.query(bool);
-        sourceBuilder.aggregation(
-                AggregationBuilders.terms("hobby").script(script).size(Config.LIMIT_LONG_HOBBY)
-        );
+			Script script = new
+				Script("doc['product.category_id']");
+			sourceBuilder.size(0);
+			sourceBuilder.query(bool);
+			sourceBuilder.aggregation(
+				AggregationBuilders.terms("hobby").script(script).size(Config.LIMIT_LONG_HOBBY)
+			);
 
-        SearchRequest request = new SearchRequest()
-                .indices(Config.ELASTIC.TRACKING_INDEX)
-                .source(sourceBuilder);
-        System.out.println("req:"+sourceBuilder.toString());
-        SearchResponse response = elasticStore.getClient().search(request, ElasticStorage.COMMON_OPTIONS);
+			SearchRequest request = new SearchRequest()
+				.indices(Config.ELASTIC.TRACKING_INDEX)
+				.source(sourceBuilder);
+			System.out.println("req:" + sourceBuilder.toString());
+			SearchResponse response = elasticStore.getClient().search(request, ElasticStorage.COMMON_OPTIONS);
 
-        Terms hobbies = response.getAggregations().get("hobby");
-        hobbies.getBuckets().forEach(category -> {
-            String categoryId = category.getKeyAsString();
-            categories.add(Integer.parseInt(categoryId));
-        });
+			Terms hobbies = response.getAggregations().get("hobby");
+			hobbies.getBuckets().forEach(category -> {
+				String categoryId = category.getKeyAsString();
+				categories.add(Integer.parseInt(categoryId));
+			});
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println("loi es");
-        }
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("loi es");
+		}
 
-        String longHobbies =" " + StringUtils.join(categories, " , ") + " ";
+		String longHobbies = " " + StringUtils.join(categories, " , ") + " ";
 
-        System.out.println(longHobbies);
+		System.out.println(longHobbies);
 
-        return longHobbies;
-    }
+		return longHobbies;
+	}
 
-    public static void main(String args[]){
-        ElasticUtils elasticUtils = new ElasticUtils();
-        elasticUtils.getLongHobby(1533);
-        elasticUtils.close();
-    }
+	public static void main(String args[]) {
+		ElasticUtils elasticUtils = new ElasticUtils();
+		elasticUtils.getLongHobby(4545);
+		elasticUtils.close();
+	}
 
-    public void close() {
-        elasticStore.close();
-    }
+	public void close() {
+		elasticStore.close();
+	}
 }
